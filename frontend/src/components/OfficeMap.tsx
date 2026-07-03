@@ -865,476 +865,710 @@ export const OfficeMap: React.FC = () => {
       {/* VIEW MODE 2: 3D ISOMETRIC VIEW WITH PERSPECTIVE SLIDERS      */}
       {/* ──────────────────────────────────────────────────────────── */}
       {viewMode === '3d' && (
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* COLUMN 1 & 2: 3D Perspective Map and controls */}
-          <div className="xl:col-span-2 flex flex-col gap-6">
-            
-            {/* 3D Map Visualization Container */}
-            <div className="relative flex flex-col p-6 rounded-3xl border border-slate-800/80 bg-slate-900/40 backdrop-blur-md overflow-hidden select-none">
-              
-              <div className="flex justify-between items-center mb-6">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+
+          {/* ═══════════════════════════════════════════════════════════ */}
+          {/* LEFT 3 COLUMNS: 3D UNIFIED FLOOR MAP + PERSPECTIVE SLIDERS */}
+          {/* ═══════════════════════════════════════════════════════════ */}
+          <div className="xl:col-span-3 flex flex-col gap-6">
+
+            {/* ── 3D Map Visualization Container ── */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="relative flex flex-col p-6 rounded-3xl border border-slate-700/50 bg-gradient-to-br from-slate-900/80 via-slate-950/90 to-slate-900/80 backdrop-blur-md overflow-hidden select-none shadow-2xl shadow-indigo-950/20"
+            >
+              {/* Ambient glow backdrop */}
+              <div className="absolute -top-32 -right-32 w-64 h-64 bg-indigo-600/5 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-emerald-600/5 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="flex justify-between items-center mb-5 relative z-10">
                 <div>
-                  <h3 className="text-lg font-black text-white flex items-center gap-2">
-                    <Activity size={18} className="text-emerald-400 animate-pulse" />
-                    <span>Smart Occupancy Map (3D)</span>
+                  <h3 className="text-lg font-black text-white flex items-center gap-2.5">
+                    <div className="relative">
+                      <Activity size={18} className="text-emerald-400" />
+                      <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-emerald-400 rounded-full animate-ping" />
+                    </div>
+                    <span className="bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+                      Smart Occupancy Floor Map
+                    </span>
                   </h3>
-                  <p className="text-xs text-slate-400">Drag sliders to adjust viewpoint. Toggling occupancy triggers smart rules.</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Interactive 3D perspective view — click devices to toggle, use sliders to orbit
+                  </p>
                 </div>
-                
+
                 <button
                   onClick={() => setIsAutoOrbit(!isAutoOrbit)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                  className={`px-4 py-2 rounded-2xl text-xs font-bold border transition-all duration-300 flex items-center gap-2 ${
                     isAutoOrbit
-                      ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20'
-                      : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'
+                      ? 'bg-indigo-600/90 border-indigo-400/50 text-white shadow-lg shadow-indigo-500/30'
+                      : 'bg-slate-800/80 border-slate-700/60 text-slate-400 hover:bg-slate-700/80 hover:text-slate-200'
                   }`}
                 >
-                  {isAutoOrbit ? '🔄 Orbit ON' : '⏹ Orbit OFF'}
+                  <Compass size={14} className={isAutoOrbit ? 'animate-spin' : ''} style={isAutoOrbit ? { animationDuration: '3s' } : {}} />
+                  {isAutoOrbit ? 'Orbiting' : 'Auto-Orbit'}
                 </button>
               </div>
 
-              {/* 3D Render Canvas */}
-              <div 
-                className="relative flex items-center justify-center min-h-[380px] bg-slate-950/80 border border-slate-900/50 rounded-2xl overflow-hidden p-6 shadow-inner"
-                style={{ perspective: '1200px' }}
+              {/* ── Floating Status Badges Row ── */}
+              <div className="flex gap-3 mb-4 relative z-10">
+                {(['drawing', 'work1', 'work2'] as RoomId[]).map((rid) => {
+                  const occ = roomOccupants[rid] > 0;
+                  return (
+                    <motion.div
+                      key={rid}
+                      animate={{ scale: occ ? [1, 1.05, 1] : 1 }}
+                      transition={{ repeat: occ ? Infinity : 0, duration: 2 }}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-[10px] font-bold border backdrop-blur-md transition-all duration-500 ${
+                        occ
+                          ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-sm shadow-emerald-500/10'
+                          : 'bg-slate-800/40 border-slate-700/30 text-slate-500'
+                      }`}
+                    >
+                      <span className={`w-2 h-2 rounded-full ${occ ? 'bg-emerald-400 shadow-sm shadow-emerald-400' : 'bg-slate-600'}`} />
+                      <span>{t(`room.${rid}`)}</span>
+                      <span className="font-mono text-[9px] ml-1">{roomOccupants[rid]}p</span>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {/* ── 3D Render Canvas ── */}
+              <div
+                className="relative flex items-center justify-center min-h-[420px] bg-gradient-to-b from-slate-950/90 to-slate-900/60 border border-slate-800/40 rounded-2xl overflow-hidden p-8 shadow-inner"
+                style={{ perspective: '1400px' }}
               >
-                <div 
-                  className="relative w-full max-w-[650px] aspect-[2/1] transition-transform duration-200 ease-out"
+                {/* Grid pattern overlay */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
+                  style={{
+                    backgroundImage: 'linear-gradient(rgba(99,102,241,.3) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,.3) 1px, transparent 1px)',
+                    backgroundSize: '40px 40px'
+                  }}
+                />
+
+                <div
+                  className="relative w-full max-w-[720px] aspect-[2.2/1] transition-transform duration-200 ease-out"
                   style={{
                     transform: `rotateX(${rotX}deg) rotateZ(${rotZ}deg) scale(${zoom})`,
-                    transformStyle: 'preserve-3d'
+                    transformStyle: 'preserve-3d',
+                    willChange: 'transform'
                   }}
                 >
-                  {/* Floor Base Plate */}
-                  <div className="absolute inset-0 rounded-2xl bg-slate-900 border-4 border-slate-800/80 shadow-2xl" />
+                  {/* Floor Base Shadow */}
+                  <div
+                    className="absolute -inset-3 rounded-3xl bg-black/30 blur-xl"
+                    style={{ transform: 'translateZ(-20px)' }}
+                  />
 
-                  {/* 3D Rooms Floor Plan Plate */}
-                  <div className="absolute inset-0 grid grid-cols-3 border border-slate-800/60 rounded-2xl overflow-hidden" style={{ transformStyle: 'preserve-3d' }}>
-                    
-                    {/* DRAWING ROOM (Left) */}
-                    <div 
-                      className={`relative transition-all duration-500 overflow-hidden ${
-                        roomOccupants.drawing > 0 ? 'bg-[#d2beaa] border-r-2 border-slate-800' : 'bg-[#d2beaa]/40 border-r-2 border-slate-800'
+                  {/* Floor Base Plate */}
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border-2 border-slate-700/60 shadow-2xl" />
+
+                  {/* Elevated wall thickness */}
+                  <div
+                    className="absolute inset-0 rounded-2xl border-2 border-slate-600/30"
+                    style={{ transform: 'translateZ(6px)', transformStyle: 'preserve-3d' }}
+                  />
+
+                  {/* 3D Rooms Floor Plan */}
+                  <div
+                    className="absolute inset-[3px] grid grid-cols-3 rounded-xl overflow-hidden"
+                    style={{ transformStyle: 'preserve-3d', transform: 'translateZ(2px)' }}
+                  >
+
+                    {/* ═══ DRAWING ROOM (Left) ═══ */}
+                    <div
+                      className={`relative transition-all duration-700 overflow-hidden border-r-2 border-slate-700/60 ${
+                        roomOccupants.drawing > 0
+                          ? 'bg-gradient-to-br from-[#e8ddd0] to-[#d2c4b2]'
+                          : 'bg-gradient-to-br from-[#d2beaa]/30 to-[#c4ae98]/20'
                       }`}
                       style={{ transformStyle: 'preserve-3d' }}
                     >
+                      {/* Occupied green glow overlay */}
                       {roomOccupants.drawing > 0 && (
-                        <div className="absolute inset-0 bg-emerald-500/10 mix-blend-overlay animate-pulse pointer-events-none" />
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: [0.05, 0.12, 0.05] }}
+                          transition={{ repeat: Infinity, duration: 3 }}
+                          className="absolute inset-0 bg-emerald-400 pointer-events-none"
+                        />
                       )}
 
-                      {/* Animated Door */}
-                      <motion.div
-                        animate={{ rotateY: doorOpenStates.drawing ? 90 : 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="absolute right-0 bottom-6 w-1 h-12 bg-amber-800 origin-top shadow-md z-30"
-                      />
-
-                      {/* Dome Occupancy Sensor */}
-                      <div className="absolute right-2 bottom-12 w-4 h-4 rounded-full bg-slate-950 border border-slate-700/80 flex items-center justify-center z-30 shadow-md">
-                        <div className={`w-2 h-2 rounded-full ${roomOccupants.drawing > 0 ? 'bg-indigo-400' : 'bg-slate-600'} transition-all`} />
-                        {sensorPulses.drawing && (
-                          <span className="absolute inset-0 rounded-full border border-indigo-400 animate-ping pointer-events-none" />
-                        )}
+                      {/* Room Label */}
+                      <div className="absolute top-2 left-2 z-20" style={{ transform: 'translateZ(50px)' }}>
+                        <div className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider backdrop-blur-md border ${
+                          roomOccupants.drawing > 0
+                            ? 'bg-emerald-950/70 text-emerald-300 border-emerald-500/30'
+                            : 'bg-slate-950/70 text-slate-400 border-slate-700/30'
+                        }`}>
+                          {t('room.drawing')}
+                        </div>
                       </div>
 
-                      {/* Couch sofa and sitting workers */}
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 w-6.5 h-24 bg-[#9c8978] border border-[#736354] rounded-xs shadow-md flex items-center justify-center p-0.5">
-                        <div className="absolute inset-0 flex flex-col justify-between p-0.5 opacity-40 pointer-events-none">
-                          <div className="w-full h-5 border-b border-[#736354]" />
-                          <div className="w-full h-5 border-b border-[#736354]" />
+                      {/* Animated Door (right wall) */}
+                      <motion.div
+                        animate={{ scaleX: doorOpenStates.drawing ? 0.15 : 1 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                        className="absolute right-0 bottom-8 w-1.5 h-14 bg-gradient-to-b from-amber-700 to-amber-900 origin-top shadow-lg z-30 rounded-sm"
+                        style={{ transform: 'translateZ(8px)' }}
+                      />
+
+                      {/* Door frame indicator */}
+                      <div className="absolute right-[-1px] bottom-8 w-0.5 h-14 bg-amber-600/30 z-20" />
+
+                      {/* Dome Occupancy Sensor */}
+                      <div className="absolute right-3 bottom-[5.5rem] z-30" style={{ transform: 'translateZ(12px)' }}>
+                        <div className="relative w-5 h-5 rounded-full bg-slate-900 border-2 border-slate-600/60 flex items-center justify-center shadow-lg">
+                          <div className={`w-2 h-2 rounded-full transition-all duration-500 ${
+                            roomOccupants.drawing > 0 ? 'bg-indigo-400 shadow-md shadow-indigo-400/50' : 'bg-slate-600'
+                          }`} />
+                          {sensorPulses.drawing && (
+                            <>
+                              <span className="absolute inset-[-4px] rounded-full border-2 border-indigo-400/60 animate-ping pointer-events-none" />
+                              <span className="absolute inset-[-8px] rounded-full border border-indigo-400/30 animate-ping pointer-events-none" style={{ animationDelay: '0.2s' }} />
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Sofa / Couch */}
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-[5.5rem] bg-gradient-to-r from-[#8b7766] to-[#9c8978] border border-[#6b5948] rounded-sm shadow-md" style={{ transform: 'translateZ(4px)' }}>
+                        <div className="absolute inset-0 flex flex-col justify-evenly px-0.5 opacity-30 pointer-events-none">
+                          <div className="w-full h-[1px] bg-[#6b5948]" />
+                          <div className="w-full h-[1px] bg-[#6b5948]" />
                         </div>
                         {roomOccupants.drawing > 0 && (
-                          <div className="relative w-full h-full flex items-center justify-center">
+                          <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateZ(8px)' }}>
                             {renderTopDownPerson(0)}
                           </div>
                         )}
                       </div>
 
-                      <div className="absolute left-11 top-1/2 -translate-y-1/2 w-8 h-12 bg-[#c2b09b] border border-[#a89783] rounded-xs shadow-sm flex items-center justify-center">
-                        <span className="text-[9px] text-[#736354] font-black uppercase opacity-20">Table</span>
+                      {/* Coffee Table */}
+                      <div className="absolute left-12 top-1/2 -translate-y-1/2 w-8 h-14 bg-gradient-to-br from-[#c8b8a6] to-[#b5a392] border border-[#9e8e7d] rounded-sm shadow-sm flex items-center justify-center" style={{ transform: 'translateZ(3px)' }}>
+                        <span className="text-[7px] text-[#7a6b5c] font-black uppercase opacity-15">Table</span>
                       </div>
 
-                      {/* Floating Devices */}
-                      <div className="absolute right-3 top-3" style={{ transform: 'translateZ(38px)', transformStyle: 'preserve-3d' }}>
+                      {/* Extra person on floor if >1 */}
+                      {roomOccupants.drawing > 1 && (
+                        <div className="absolute right-6 top-1/3" style={{ transform: 'translateZ(6px)' }}>
+                          {renderTopDownPerson(0.3)}
+                        </div>
+                      )}
+
+                      {/* Chair */}
+                      <div className="absolute right-3 top-8 w-5 h-5 bg-[#a08672] rounded-full border border-[#8a7260] shadow-sm opacity-70" style={{ transform: 'translateZ(3px)' }} />
+
+                      {/* Ceiling Devices */}
+                      <div className="absolute right-3 top-3 z-20" style={{ transform: 'translateZ(42px)', transformStyle: 'preserve-3d' }}>
                         {renderTopDownLight(getRoomDevices('drawing')[2] || { id: 'drawing-light-1', status: 'OFF' } as Device)}
                       </div>
-                      <div className="absolute left-1/2 top-4 -translate-x-1/2" style={{ transform: 'translateZ(38px)', transformStyle: 'preserve-3d' }}>
+                      <div className="absolute left-1/2 top-4 -translate-x-1/2 z-20" style={{ transform: 'translateZ(42px)', transformStyle: 'preserve-3d' }}>
                         {renderTopDownFan(getRoomDevices('drawing')[0] || { id: 'drawing-fan-1', status: 'OFF' } as Device)}
                       </div>
-                      <div className="absolute right-3 bottom-3" style={{ transform: 'translateZ(38px)', transformStyle: 'preserve-3d' }}>
+                      <div className="absolute right-3 bottom-3 z-20" style={{ transform: 'translateZ(42px)', transformStyle: 'preserve-3d' }}>
                         {renderTopDownLight(getRoomDevices('drawing')[3] || { id: 'drawing-light-2', status: 'OFF' } as Device)}
                       </div>
                     </div>
 
-                    {/* WORK ROOM 1 (Middle) */}
-                    <div 
-                      className={`relative transition-all duration-500 overflow-hidden ${
-                        roomOccupants.work1 > 0 ? 'bg-[#d5d8dc] border-r-2 border-slate-800' : 'bg-[#d5d8dc]/40 border-r-2 border-slate-800'
+                    {/* ═══ WORK ROOM 1 (Middle) ═══ */}
+                    <div
+                      className={`relative transition-all duration-700 overflow-hidden border-r-2 border-slate-700/60 ${
+                        roomOccupants.work1 > 0
+                          ? 'bg-gradient-to-br from-[#e2e5ea] to-[#d5d8dc]'
+                          : 'bg-gradient-to-br from-[#d5d8dc]/30 to-[#c8cbd0]/20'
                       }`}
                       style={{ transformStyle: 'preserve-3d' }}
                     >
                       {roomOccupants.work1 > 0 && (
-                        <div className="absolute inset-0 bg-emerald-500/10 mix-blend-overlay animate-pulse pointer-events-none" />
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: [0.05, 0.12, 0.05] }}
+                          transition={{ repeat: Infinity, duration: 3, delay: 0.5 }}
+                          className="absolute inset-0 bg-emerald-400 pointer-events-none"
+                        />
                       )}
 
-                      {/* Animated Door */}
+                      {/* Room Label */}
+                      <div className="absolute top-2 left-2 z-20" style={{ transform: 'translateZ(50px)' }}>
+                        <div className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider backdrop-blur-md border ${
+                          roomOccupants.work1 > 0
+                            ? 'bg-emerald-950/70 text-emerald-300 border-emerald-500/30'
+                            : 'bg-slate-950/70 text-slate-400 border-slate-700/30'
+                        }`}>
+                          {t('room.work1')}
+                        </div>
+                      </div>
+
+                      {/* Animated Door (bottom wall) */}
                       <motion.div
-                        animate={{ rotateX: doorOpenStates.work1 ? -90 : 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="absolute bottom-0 left-6 w-12 h-1 bg-amber-800 origin-left shadow-md z-30"
+                        animate={{ scaleY: doorOpenStates.work1 ? 0.15 : 1 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                        className="absolute bottom-0 left-6 w-14 h-1.5 bg-gradient-to-r from-amber-700 to-amber-900 origin-left shadow-lg z-30 rounded-sm"
+                        style={{ transform: 'translateZ(8px)' }}
                       />
+                      <div className="absolute bottom-[-1px] left-6 w-14 h-0.5 bg-amber-600/30 z-20" />
 
                       {/* Dome Occupancy Sensor */}
-                      <div className="absolute left-14 bottom-2 w-4 h-4 rounded-full bg-slate-950 border border-slate-700/80 flex items-center justify-center z-30 shadow-md">
-                        <div className={`w-2 h-2 rounded-full ${roomOccupants.work1 > 0 ? 'bg-indigo-400' : 'bg-slate-600'} transition-all`} />
-                        {sensorPulses.work1 && (
-                          <span className="absolute inset-0 rounded-full border border-indigo-400 animate-ping pointer-events-none" />
-                        )}
-                      </div>
-
-                      {/* Desks Grid */}
-                      <div className="absolute inset-x-4 top-16 bottom-16 grid grid-cols-2 gap-4">
-                        {/* Desk 1 */}
-                        <div className="relative bg-[#bda893] border border-[#968270] rounded-xs shadow-sm flex items-center justify-center">
-                          <div className="flex flex-col items-center pointer-events-none opacity-40">
-                            <div className="w-5 h-2 bg-slate-900 rounded-xs" />
-                            <div className="w-4 h-3 bg-slate-800 rounded-full mt-0.5" />
-                          </div>
-                          {roomOccupants.work1 >= 1 && renderTopDownPerson(0)}
-                        </div>
-                        {/* Desk 2 */}
-                        <div className="relative bg-[#bda893] border border-[#968270] rounded-xs shadow-sm flex items-center justify-center">
-                          <div className="flex flex-col items-center pointer-events-none opacity-40">
-                            <div className="w-5 h-2 bg-slate-900 rounded-xs" />
-                            <div className="w-4 h-3 bg-slate-800 rounded-full mt-0.5" />
-                          </div>
-                        </div>
-                        {/* Desk 3 */}
-                        <div className="relative bg-[#bda893] border border-[#968270] rounded-xs shadow-sm flex items-center justify-center">
-                          <div className="flex flex-col items-center pointer-events-none opacity-40">
-                            <div className="w-5 h-2 bg-slate-900 rounded-xs" />
-                            <div className="w-4 h-3 bg-slate-800 rounded-full mt-0.5" />
-                          </div>
-                          {roomOccupants.work1 >= 2 && renderTopDownPerson(0.4)}
-                        </div>
-                        {/* Desk 4 */}
-                        <div className="relative bg-[#bda893] border border-[#968270] rounded-xs shadow-sm flex items-center justify-center">
-                          <div className="flex flex-col items-center pointer-events-none opacity-40">
-                            <div className="w-5 h-2 bg-slate-900 rounded-xs" />
-                            <div className="w-4 h-3 bg-slate-800 rounded-full mt-0.5" />
-                          </div>
-                          {roomOccupants.work1 >= 3 && renderTopDownPerson(0.8)}
+                      <div className="absolute left-[5.2rem] bottom-3 z-30" style={{ transform: 'translateZ(12px)' }}>
+                        <div className="relative w-5 h-5 rounded-full bg-slate-900 border-2 border-slate-600/60 flex items-center justify-center shadow-lg">
+                          <div className={`w-2 h-2 rounded-full transition-all duration-500 ${
+                            roomOccupants.work1 > 0 ? 'bg-indigo-400 shadow-md shadow-indigo-400/50' : 'bg-slate-600'
+                          }`} />
+                          {sensorPulses.work1 && (
+                            <>
+                              <span className="absolute inset-[-4px] rounded-full border-2 border-indigo-400/60 animate-ping pointer-events-none" />
+                              <span className="absolute inset-[-8px] rounded-full border border-indigo-400/30 animate-ping pointer-events-none" style={{ animationDelay: '0.2s' }} />
+                            </>
+                          )}
                         </div>
                       </div>
 
-                      {/* Floating Devices */}
-                      <div className="absolute left-4 top-4" style={{ transform: 'translateZ(38px)', transformStyle: 'preserve-3d' }}>
+                      {/* Desks Grid (2x2) */}
+                      <div className="absolute inset-x-3 top-14 bottom-14 grid grid-cols-2 gap-3" style={{ transform: 'translateZ(3px)' }}>
+                        {[0, 1, 2, 3].map((dIdx) => (
+                          <div key={dIdx} className="relative bg-gradient-to-br from-[#c8b8a4] to-[#bda893] border border-[#a08e7a] rounded-sm shadow-sm flex items-center justify-center">
+                            <div className="flex flex-col items-center pointer-events-none opacity-30">
+                              <div className="w-5 h-2 bg-slate-800 rounded-[1px]" />
+                              <div className="w-4 h-2.5 bg-slate-700 rounded-full mt-0.5" />
+                            </div>
+                            {dIdx === 0 && roomOccupants.work1 >= 1 && (
+                              <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateZ(8px)' }}>
+                                {renderTopDownPerson(0)}
+                              </div>
+                            )}
+                            {dIdx === 2 && roomOccupants.work1 >= 2 && (
+                              <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateZ(8px)' }}>
+                                {renderTopDownPerson(0.4)}
+                              </div>
+                            )}
+                            {dIdx === 3 && roomOccupants.work1 >= 3 && (
+                              <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateZ(8px)' }}>
+                                {renderTopDownPerson(0.8)}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Ceiling Devices */}
+                      <div className="absolute left-4 top-3 z-20" style={{ transform: 'translateZ(42px)', transformStyle: 'preserve-3d' }}>
                         {renderTopDownFan(getRoomDevices('work1')[0] || { id: 'work1-fan-1', status: 'OFF' } as Device)}
                       </div>
-                      <div className="absolute right-4 top-4" style={{ transform: 'translateZ(38px)', transformStyle: 'preserve-3d' }}>
+                      <div className="absolute right-4 top-3 z-20" style={{ transform: 'translateZ(42px)', transformStyle: 'preserve-3d' }}>
                         {renderTopDownLight(getRoomDevices('work1')[2] || { id: 'work1-light-1', status: 'OFF' } as Device)}
                       </div>
-                      <div className="absolute left-4 bottom-4" style={{ transform: 'translateZ(38px)', transformStyle: 'preserve-3d' }}>
+                      <div className="absolute left-4 bottom-4 z-20" style={{ transform: 'translateZ(42px)', transformStyle: 'preserve-3d' }}>
                         {renderTopDownLight(getRoomDevices('work1')[3] || { id: 'work1-light-2', status: 'OFF' } as Device)}
                       </div>
-                      <div className="absolute right-4 bottom-4" style={{ transform: 'translateZ(38px)', transformStyle: 'preserve-3d' }}>
+                      <div className="absolute right-4 bottom-4 z-20" style={{ transform: 'translateZ(42px)', transformStyle: 'preserve-3d' }}>
                         {renderTopDownFan(getRoomDevices('work1')[1] || { id: 'work1-fan-2', status: 'OFF' } as Device)}
                       </div>
                     </div>
 
-                    {/* WORK ROOM 2 (Right) */}
-                    <div 
-                      className={`relative transition-all duration-500 overflow-hidden ${
-                        roomOccupants.work2 > 0 ? 'bg-[#cbb297]' : 'bg-[#cbb297]/40'
+                    {/* ═══ WORK ROOM 2 (Right) ═══ */}
+                    <div
+                      className={`relative transition-all duration-700 overflow-hidden ${
+                        roomOccupants.work2 > 0
+                          ? 'bg-gradient-to-br from-[#dcc9b3] to-[#cbb297]'
+                          : 'bg-gradient-to-br from-[#cbb297]/30 to-[#bfa585]/20'
                       }`}
                       style={{ transformStyle: 'preserve-3d' }}
                     >
                       {roomOccupants.work2 > 0 && (
-                        <div className="absolute inset-0 bg-emerald-500/10 mix-blend-overlay animate-pulse pointer-events-none" />
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: [0.05, 0.12, 0.05] }}
+                          transition={{ repeat: Infinity, duration: 3, delay: 1 }}
+                          className="absolute inset-0 bg-emerald-400 pointer-events-none"
+                        />
                       )}
 
-                      {/* Animated Door */}
+                      {/* Room Label */}
+                      <div className="absolute top-2 left-2 z-20" style={{ transform: 'translateZ(50px)' }}>
+                        <div className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider backdrop-blur-md border ${
+                          roomOccupants.work2 > 0
+                            ? 'bg-emerald-950/70 text-emerald-300 border-emerald-500/30'
+                            : 'bg-slate-950/70 text-slate-400 border-slate-700/30'
+                        }`}>
+                          {t('room.work2')}
+                        </div>
+                      </div>
+
+                      {/* Animated Door (bottom wall) */}
                       <motion.div
-                        animate={{ rotateX: doorOpenStates.work2 ? -90 : 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="absolute bottom-0 left-6 w-12 h-1 bg-amber-800 origin-left shadow-md z-30"
+                        animate={{ scaleY: doorOpenStates.work2 ? 0.15 : 1 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                        className="absolute bottom-0 left-6 w-14 h-1.5 bg-gradient-to-r from-amber-700 to-amber-900 origin-left shadow-lg z-30 rounded-sm"
+                        style={{ transform: 'translateZ(8px)' }}
                       />
+                      <div className="absolute bottom-[-1px] left-6 w-14 h-0.5 bg-amber-600/30 z-20" />
 
                       {/* Dome Occupancy Sensor */}
-                      <div className="absolute left-14 bottom-2 w-4 h-4 rounded-full bg-slate-950 border border-slate-700/80 flex items-center justify-center z-30 shadow-md">
-                        <div className={`w-2 h-2 rounded-full ${roomOccupants.work2 > 0 ? 'bg-indigo-400' : 'bg-slate-600'} transition-all`} />
-                        {sensorPulses.work2 && (
-                          <span className="absolute inset-0 rounded-full border border-indigo-400 animate-ping pointer-events-none" />
-                        )}
-                      </div>
-
-                      {/* Desks Grid */}
-                      <div className="absolute inset-x-4 top-16 bottom-16 grid grid-cols-2 gap-4">
-                        {/* Desk 1 */}
-                        <div className="relative bg-[#b09983] border border-[#8a7561] rounded-xs shadow-sm flex items-center justify-center">
-                          <div className="flex flex-col items-center pointer-events-none opacity-40">
-                            <div className="w-5 h-2 bg-slate-900 rounded-xs" />
-                            <div className="w-4 h-3 bg-slate-800 rounded-full mt-0.5" />
-                          </div>
-                          {roomOccupants.work2 >= 1 && renderTopDownPerson(0.1)}
-                        </div>
-                        {/* Desk 2 */}
-                        <div className="relative bg-[#b09983] border border-[#8a7561] rounded-xs shadow-sm flex items-center justify-center">
-                          <div className="flex flex-col items-center pointer-events-none opacity-40">
-                            <div className="w-5 h-2 bg-slate-900 rounded-xs" />
-                            <div className="w-4 h-3 bg-slate-800 rounded-full mt-0.5" />
-                          </div>
-                        </div>
-                        {/* Desk 3 */}
-                        <div className="relative bg-[#b09983] border border-[#8a7561] rounded-xs shadow-sm flex items-center justify-center">
-                          <div className="flex flex-col items-center pointer-events-none opacity-40">
-                            <div className="w-5 h-2 bg-slate-900 rounded-xs" />
-                            <div className="w-4 h-3 bg-slate-800 rounded-full mt-0.5" />
-                          </div>
-                          {roomOccupants.work2 >= 2 && renderTopDownPerson(0.3)}
-                        </div>
-                        {/* Desk 4 */}
-                        <div className="relative bg-[#b09983] border border-[#8a7561] rounded-xs shadow-sm flex items-center justify-center">
-                          <div className="flex flex-col items-center pointer-events-none opacity-40">
-                            <div className="w-5 h-2 bg-slate-900 rounded-xs" />
-                            <div className="w-4 h-3 bg-slate-800 rounded-full mt-0.5" />
-                          </div>
-                          {roomOccupants.work2 >= 3 && renderTopDownPerson(0.7)}
+                      <div className="absolute left-[5.2rem] bottom-3 z-30" style={{ transform: 'translateZ(12px)' }}>
+                        <div className="relative w-5 h-5 rounded-full bg-slate-900 border-2 border-slate-600/60 flex items-center justify-center shadow-lg">
+                          <div className={`w-2 h-2 rounded-full transition-all duration-500 ${
+                            roomOccupants.work2 > 0 ? 'bg-indigo-400 shadow-md shadow-indigo-400/50' : 'bg-slate-600'
+                          }`} />
+                          {sensorPulses.work2 && (
+                            <>
+                              <span className="absolute inset-[-4px] rounded-full border-2 border-indigo-400/60 animate-ping pointer-events-none" />
+                              <span className="absolute inset-[-8px] rounded-full border border-indigo-400/30 animate-ping pointer-events-none" style={{ animationDelay: '0.2s' }} />
+                            </>
+                          )}
                         </div>
                       </div>
 
-                      {/* Floating Devices */}
-                      <div className="absolute left-4 top-4" style={{ transform: 'translateZ(38px)', transformStyle: 'preserve-3d' }}>
+                      {/* Desks Grid (2x2) */}
+                      <div className="absolute inset-x-3 top-14 bottom-14 grid grid-cols-2 gap-3" style={{ transform: 'translateZ(3px)' }}>
+                        {[0, 1, 2, 3].map((dIdx) => (
+                          <div key={dIdx} className="relative bg-gradient-to-br from-[#bfab96] to-[#b09983] border border-[#968270] rounded-sm shadow-sm flex items-center justify-center">
+                            <div className="flex flex-col items-center pointer-events-none opacity-30">
+                              <div className="w-5 h-2 bg-slate-800 rounded-[1px]" />
+                              <div className="w-4 h-2.5 bg-slate-700 rounded-full mt-0.5" />
+                            </div>
+                            {dIdx === 0 && roomOccupants.work2 >= 1 && (
+                              <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateZ(8px)' }}>
+                                {renderTopDownPerson(0.1)}
+                              </div>
+                            )}
+                            {dIdx === 2 && roomOccupants.work2 >= 2 && (
+                              <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateZ(8px)' }}>
+                                {renderTopDownPerson(0.3)}
+                              </div>
+                            )}
+                            {dIdx === 3 && roomOccupants.work2 >= 3 && (
+                              <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateZ(8px)' }}>
+                                {renderTopDownPerson(0.7)}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Ceiling Devices */}
+                      <div className="absolute left-4 top-3 z-20" style={{ transform: 'translateZ(42px)', transformStyle: 'preserve-3d' }}>
                         {renderTopDownFan(getRoomDevices('work2')[0] || { id: 'work2-fan-1', status: 'OFF' } as Device)}
                       </div>
-                      <div className="absolute right-4 top-4" style={{ transform: 'translateZ(38px)', transformStyle: 'preserve-3d' }}>
+                      <div className="absolute right-4 top-3 z-20" style={{ transform: 'translateZ(42px)', transformStyle: 'preserve-3d' }}>
                         {renderTopDownLight(getRoomDevices('work2')[2] || { id: 'work2-light-1', status: 'OFF' } as Device)}
                       </div>
-                      <div className="absolute left-4 bottom-4" style={{ transform: 'translateZ(38px)', transformStyle: 'preserve-3d' }}>
+                      <div className="absolute left-4 bottom-4 z-20" style={{ transform: 'translateZ(42px)', transformStyle: 'preserve-3d' }}>
                         {renderTopDownLight(getRoomDevices('work2')[3] || { id: 'work2-light-2', status: 'OFF' } as Device)}
                       </div>
-                      <div className="absolute right-4 bottom-4" style={{ transform: 'translateZ(38px)', transformStyle: 'preserve-3d' }}>
+                      <div className="absolute right-4 bottom-4 z-20" style={{ transform: 'translateZ(42px)', transformStyle: 'preserve-3d' }}>
                         {renderTopDownFan(getRoomDevices('work2')[1] || { id: 'work2-fan-2', status: 'OFF' } as Device)}
                       </div>
                     </div>
 
                   </div>
-
                 </div>
               </div>
+            </motion.div>
 
-            </div>
-
-            {/* Sliders Control Box */}
-            <div className="p-5 rounded-3xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-md">
-              <div className="flex items-center gap-2 mb-4 text-xs font-bold text-slate-300">
-                <SlidersHorizontal size={14} className="text-indigo-400" />
-                <span>{t('map.viewControls')}</span>
+            {/* ── 3D Perspective Sliders Control Box ── */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.15 }}
+              className="p-5 rounded-3xl bg-gradient-to-br from-slate-900/60 to-slate-950/80 border border-slate-700/40 backdrop-blur-md shadow-lg"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
+                  <SlidersHorizontal size={14} className="text-indigo-400" />
+                  <span>{t('map.viewControls')}</span>
+                </div>
+                <div className="text-[9px] font-mono text-slate-600 bg-slate-800/60 px-2 py-0.5 rounded-md border border-slate-700/30">
+                  X:{Math.round(rotX)}° Z:{Math.round(rotZ)}° S:{zoom.toFixed(1)}x
+                </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+                {/* Rotation Z */}
                 <div className="flex flex-col gap-2">
                   <div className="flex justify-between text-xs font-bold">
-                    <span className="text-slate-400">Rotation Angle</span>
-                    <span className="text-indigo-400 font-mono">{Math.round(rotZ)}°</span>
+                    <span className="text-slate-400 flex items-center gap-1"><Compass size={11} className="text-indigo-400/60" /> Rotation</span>
+                    <span className="text-indigo-400 font-mono text-[11px]">{Math.round(rotZ)}°</span>
                   </div>
                   <input
-                    type="range"
-                    min="-180"
-                    max="180"
-                    value={rotZ}
-                    onChange={(e) => {
-                      setIsAutoOrbit(false);
-                      setRotZ(Number(e.target.value));
-                    }}
-                    className="w-full accent-indigo-500 bg-slate-800 rounded-lg h-2 cursor-pointer"
+                    type="range" min="-180" max="180" value={rotZ}
+                    onChange={(e) => { setIsAutoOrbit(false); setRotZ(Number(e.target.value)); }}
+                    className="w-full accent-indigo-500 bg-slate-800 rounded-lg h-1.5 cursor-pointer"
                   />
                 </div>
+                {/* Tilt X */}
                 <div className="flex flex-col gap-2">
                   <div className="flex justify-between text-xs font-bold">
-                    <span className="text-slate-400">Tilt Angle</span>
-                    <span className="text-indigo-400 font-mono">{Math.round(rotX)}°</span>
+                    <span className="text-slate-400 flex items-center gap-1"><ArrowUp size={11} className="text-indigo-400/60" /> Tilt</span>
+                    <span className="text-indigo-400 font-mono text-[11px]">{Math.round(rotX)}°</span>
                   </div>
                   <input
-                    type="range"
-                    min="15"
-                    max="85"
-                    value={rotX}
-                    onChange={(e) => {
-                      setIsAutoOrbit(false);
-                      setRotX(Number(e.target.value));
-                    }}
-                    className="w-full accent-indigo-500 bg-slate-800 rounded-lg h-2 cursor-pointer"
+                    type="range" min="15" max="85" value={rotX}
+                    onChange={(e) => { setIsAutoOrbit(false); setRotX(Number(e.target.value)); }}
+                    className="w-full accent-indigo-500 bg-slate-800 rounded-lg h-1.5 cursor-pointer"
                   />
                 </div>
+                {/* Zoom */}
                 <div className="flex flex-col gap-2">
                   <div className="flex justify-between text-xs font-bold">
-                    <span className="text-slate-400">Zoom Level</span>
-                    <span className="text-indigo-400 font-mono">{zoom.toFixed(2)}x</span>
+                    <span className="text-slate-400 flex items-center gap-1"><Layers size={11} className="text-indigo-400/60" /> Zoom</span>
+                    <span className="text-indigo-400 font-mono text-[11px]">{zoom.toFixed(2)}x</span>
                   </div>
                   <input
-                    type="range"
-                    min="0.7"
-                    max="1.3"
-                    step="0.05"
-                    value={zoom}
+                    type="range" min="0.7" max="1.3" step="0.05" value={zoom}
                     onChange={(e) => setZoom(Number(e.target.value))}
-                    className="w-full accent-indigo-500 bg-slate-800 rounded-lg h-2 cursor-pointer"
+                    className="w-full accent-indigo-500 bg-slate-800 rounded-lg h-1.5 cursor-pointer"
                   />
                 </div>
+                {/* Auto-Orbit Toggle */}
+                <div className="flex flex-col gap-2">
+                  <div className="text-xs font-bold text-slate-400">Auto-Orbit</div>
+                  <button
+                    onClick={() => setIsAutoOrbit(!isAutoOrbit)}
+                    className={`w-full py-2 rounded-xl text-xs font-bold border transition-all duration-300 ${
+                      isAutoOrbit
+                        ? 'bg-indigo-600/80 border-indigo-400/40 text-white shadow-md shadow-indigo-500/20'
+                        : 'bg-slate-800/60 border-slate-700/40 text-slate-500 hover:text-slate-300 hover:bg-slate-700/60'
+                    }`}
+                  >
+                    {isAutoOrbit ? 'Orbiting...' : 'Enable Orbit'}
+                  </button>
+                </div>
               </div>
-            </div>
+            </motion.div>
 
           </div>
 
-          {/* COLUMN 3: Analytics, Interactive Controls, and Live logs */}
-          <div className="flex flex-col gap-6">
+          {/* ═══════════════════════════════════════════════════════════ */}
+          {/* RIGHT COLUMN: SIMULATION + ANALYTICS + TIMELINE           */}
+          {/* ═══════════════════════════════════════════════════════════ */}
+          <div className="xl:col-span-1 flex flex-col gap-5">
 
-            {/* Simulation Controls Panel */}
-            <div className="p-6 rounded-3xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-md flex flex-col gap-4">
+            {/* ── Simulation Controls Panel ── */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="p-5 rounded-3xl bg-gradient-to-br from-slate-900/60 to-slate-950/80 border border-slate-700/40 backdrop-blur-md shadow-lg flex flex-col gap-4"
+            >
               <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <Zap size={15} className="text-indigo-400" />
+                <div className="p-1 bg-indigo-500/10 rounded-lg border border-indigo-500/20">
+                  <Zap size={13} className="text-indigo-400" />
+                </div>
                 <span>Simulation Panel</span>
               </h3>
-              
-              <div className="flex flex-col gap-3">
-                {(['drawing', 'work1', 'work2'] as RoomId[]).map((roomId) => (
-                  <div key={roomId} className="p-3 bg-slate-950/60 rounded-2xl border border-slate-800/50 flex justify-between items-center">
-                    <div>
-                      <div className="text-xs font-bold text-white capitalize">{t(`room.${roomId}`)}</div>
-                      <div className="text-[10px] text-slate-500 font-semibold">Occupants: {roomOccupants[roomId]} | Power: {getRoomPower(roomId)}W</div>
-                    </div>
-                    <div className="flex gap-1.5">
-                      <button
-                        onClick={() => handlePersonExit(roomId)}
-                        disabled={roomOccupants[roomId] <= 0}
-                        className="p-1.5 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed hover:bg-rose-500/20"
-                        title="Remove Person"
-                      >
-                        <UserMinus size={14} />
-                      </button>
-                      <button
-                        onClick={() => handlePersonEnter(roomId)}
-                        className="p-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-lg hover:bg-emerald-500/20"
-                        title="Add Person"
-                      >
-                        <UserPlus size={14} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+
+              <div className="flex flex-col gap-2.5">
+                {(['drawing', 'work1', 'work2'] as RoomId[]).map((roomId) => {
+                  const isOcc = roomOccupants[roomId] > 0;
+                  return (
+                    <motion.div
+                      key={roomId}
+                      layout
+                      className={`p-3 rounded-2xl border flex justify-between items-center transition-all duration-500 ${
+                        isOcc
+                          ? 'bg-emerald-950/30 border-emerald-500/20 shadow-sm shadow-emerald-500/5'
+                          : 'bg-slate-950/50 border-slate-800/40'
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <div className="text-xs font-bold text-white capitalize flex items-center gap-1.5">
+                          <span className={`w-1.5 h-1.5 rounded-full ${isOcc ? 'bg-emerald-400' : 'bg-slate-600'}`} />
+                          {t(`room.${roomId}`)}
+                        </div>
+                        <div className="text-[9px] text-slate-500 font-semibold mt-0.5">
+                          {roomOccupants[roomId]} occupants · {getRoomPower(roomId)}W
+                        </div>
+                      </div>
+                      <div className="flex gap-1.5 flex-shrink-0">
+                        <button
+                          onClick={() => handlePersonExit(roomId)}
+                          disabled={roomOccupants[roomId] <= 0}
+                          className="p-1.5 bg-rose-500/10 border border-rose-500/25 text-rose-400 rounded-xl disabled:opacity-20 disabled:cursor-not-allowed hover:bg-rose-500/20 transition-all"
+                          title="Exit Person"
+                        >
+                          <UserMinus size={13} />
+                        </button>
+                        <button
+                          onClick={() => handlePersonEnter(roomId)}
+                          className="p-1.5 bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 rounded-xl hover:bg-emerald-500/20 transition-all"
+                          title="Enter Person"
+                        >
+                          <UserPlus size={13} />
+                        </button>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
 
-              <div className="grid grid-cols-2 gap-3 mt-1">
+              <div className="grid grid-cols-2 gap-2.5 mt-1">
                 <button
                   onClick={handleRandomActivity}
-                  className="py-2.5 px-3 bg-slate-800 border border-slate-700 text-slate-300 font-semibold rounded-xl text-xs flex items-center justify-center gap-1.5 hover:bg-slate-700 hover:text-white"
+                  className="py-2 px-3 bg-slate-800/60 border border-slate-700/40 text-slate-300 font-semibold rounded-xl text-[11px] flex items-center justify-center gap-1.5 hover:bg-slate-700/60 hover:text-white transition-all"
                 >
-                  <Activity size={13} />
-                  <span>Random Action</span>
+                  <Activity size={12} />
+                  <span>Random</span>
                 </button>
                 <button
                   onClick={() => setIsAutoDemo(!isAutoDemo)}
-                  className={`py-2.5 px-3 border font-semibold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all ${
-                    isAutoDemo 
-                      ? 'bg-emerald-600 border-emerald-500 text-white animate-pulse'
-                      : 'bg-indigo-600/20 border-indigo-500/30 text-indigo-400 hover:bg-indigo-600/30'
+                  className={`py-2 px-3 border font-semibold rounded-xl text-[11px] flex items-center justify-center gap-1.5 transition-all duration-300 ${
+                    isAutoDemo
+                      ? 'bg-emerald-600/80 border-emerald-500/50 text-white shadow-md shadow-emerald-500/15'
+                      : 'bg-indigo-600/15 border-indigo-500/25 text-indigo-400 hover:bg-indigo-600/25'
                   }`}
                 >
-                  {isAutoDemo ? <Pause size={13} /> : <Play size={13} />}
-                  <span>{isAutoDemo ? 'Auto Demo ON' : 'Start Auto Demo'}</span>
+                  {isAutoDemo ? <Pause size={12} /> : <Play size={12} />}
+                  <span>{isAutoDemo ? 'Demo ON' : 'Auto Demo'}</span>
                 </button>
               </div>
 
               <button
                 onClick={handleResetSimulation}
-                className="w-full py-2 bg-slate-800/40 border border-slate-800 text-slate-400 text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 hover:bg-slate-800 hover:text-white"
+                className="w-full py-2 bg-slate-800/30 border border-slate-800/50 text-slate-500 text-[11px] font-semibold rounded-xl flex items-center justify-center gap-1.5 hover:bg-slate-800/60 hover:text-slate-300 transition-all"
               >
-                <RotateCcw size={12} />
+                <RotateCcw size={11} />
                 <span>Reset Simulation</span>
               </button>
-            </div>
+            </motion.div>
 
-            {/* Live Analytics Panel */}
-            <div className="p-6 rounded-3xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-md flex flex-col gap-4">
+            {/* ── Live Analytics Panel ── */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+              className="p-5 rounded-3xl bg-gradient-to-br from-slate-900/60 to-slate-950/80 border border-slate-700/40 backdrop-blur-md shadow-lg flex flex-col gap-4"
+            >
               <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <TrendingUp size={15} className="text-emerald-400" />
-                <span>Live Metrics</span>
+                <div className="p-1 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                  <TrendingUp size={13} className="text-emerald-400" />
+                </div>
+                <span>Analytics</span>
               </h3>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-slate-950/60 rounded-2xl border border-slate-900/80">
-                  <div className="text-[10px] text-slate-500 font-bold uppercase">Occupied Rooms</div>
-                  <div className="text-xl font-black text-indigo-400 mt-1">
-                    {Object.values(roomOccupants).filter(c => c > 0).length} <span className="text-[10px] text-slate-500 font-normal">/ 3</span>
+              <div className="grid grid-cols-2 gap-2.5">
+                <div className="p-3 bg-slate-950/50 rounded-2xl border border-slate-800/40">
+                  <div className="text-[9px] text-slate-500 font-bold uppercase">Occupied</div>
+                  <div className="text-lg font-black text-indigo-400 mt-0.5 leading-tight">
+                    {Object.values(roomOccupants).filter(c => c > 0).length}
+                    <span className="text-[10px] text-slate-600 font-normal ml-0.5">/ 3</span>
                   </div>
                 </div>
-                <div className="p-3 bg-slate-950/60 rounded-2xl border border-slate-900/80">
-                  <div className="text-[10px] text-slate-500 font-bold uppercase">Empty Rooms</div>
-                  <div className="text-xl font-black text-slate-400 mt-1">
-                    {Object.values(roomOccupants).filter(c => c === 0).length} <span className="text-[10px] text-slate-500 font-normal">/ 3</span>
+                <div className="p-3 bg-slate-950/50 rounded-2xl border border-slate-800/40">
+                  <div className="text-[9px] text-slate-500 font-bold uppercase">Empty</div>
+                  <div className="text-lg font-black text-slate-400 mt-0.5 leading-tight">
+                    {Object.values(roomOccupants).filter(c => c === 0).length}
+                    <span className="text-[10px] text-slate-600 font-normal ml-0.5">/ 3</span>
                   </div>
                 </div>
-                <div className="p-3 bg-slate-950/60 rounded-2xl border border-slate-900/80">
-                  <div className="text-[10px] text-slate-500 font-bold uppercase">Active Devices</div>
-                  <div className="text-sm font-black text-white mt-1">
-                    💡 {devices.filter(d => d.type === 'light' && d.status === 'ON').length} | 🌀 {devices.filter(d => d.type === 'fan' && d.status === 'ON').length}
+                <div className="p-3 bg-slate-950/50 rounded-2xl border border-slate-800/40">
+                  <div className="text-[9px] text-slate-500 font-bold uppercase">Lights ON</div>
+                  <div className="text-sm font-black text-amber-400 mt-0.5 flex items-center gap-1">
+                    <Lightbulb size={12} />
+                    {devices.filter(d => d.type === 'light' && d.status === 'ON').length}
                   </div>
                 </div>
-                <div className="p-3 bg-slate-950/60 rounded-2xl border border-slate-900/80">
-                  <div className="text-[10px] text-slate-500 font-bold uppercase">Power Usage</div>
-                  <div className="text-sm font-black text-white mt-1">
-                    {powerState?.totalPowerDraw || 0} W
+                <div className="p-3 bg-slate-950/50 rounded-2xl border border-slate-800/40">
+                  <div className="text-[9px] text-slate-500 font-bold uppercase">Fans ON</div>
+                  <div className="text-sm font-black text-sky-400 mt-0.5 flex items-center gap-1">
+                    <Fan size={12} />
+                    {devices.filter(d => d.type === 'fan' && d.status === 'ON').length}
                   </div>
                 </div>
               </div>
 
-              <div className="p-3.5 bg-emerald-500/5 rounded-2xl border border-emerald-500/20 flex items-center justify-between">
+              {/* Power Usage */}
+              <div className="p-3 bg-slate-950/50 rounded-2xl border border-slate-800/40 flex items-center justify-between">
                 <div>
-                  <div className="text-[9px] text-emerald-500/80 font-bold uppercase tracking-wider">Energy Saved Today</div>
-                  <div className="text-lg font-black text-emerald-400 mt-0.5">{energySavedAccumulated.toFixed(3)} kWh</div>
-                  <div className="text-[9px] text-emerald-500/60 font-semibold mt-0.5">Est. Cost Saved: ${(energySavedAccumulated * 0.12).toFixed(2)}</div>
+                  <div className="text-[9px] text-slate-500 font-bold uppercase">Current Draw</div>
+                  <div className="text-lg font-black text-white mt-0.5 leading-tight">
+                    {powerState?.totalPowerDraw || 0}
+                    <span className="text-[10px] text-slate-500 font-normal ml-1">W</span>
+                  </div>
                 </div>
-                <div className="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
-                  <Coins size={18} />
+                <div className="p-2 bg-indigo-500/10 rounded-xl border border-indigo-500/20">
+                  <Zap size={16} className="text-indigo-400" />
                 </div>
               </div>
 
-              <div className="px-3 py-2 bg-indigo-500/5 rounded-xl border border-indigo-500/10 flex justify-between items-center text-[10px] font-semibold text-slate-400">
-                <span>Auto-Shutdown Trigger Events</span>
+              {/* Energy Saved */}
+              <div className="p-3.5 bg-gradient-to-r from-emerald-950/40 to-emerald-900/20 rounded-2xl border border-emerald-500/15 flex items-center justify-between">
+                <div>
+                  <div className="text-[9px] text-emerald-500/70 font-bold uppercase tracking-wider">Energy Saved</div>
+                  <div className="text-base font-black text-emerald-400 mt-0.5">{energySavedAccumulated.toFixed(3)} kWh</div>
+                  <div className="text-[9px] text-emerald-500/50 font-semibold mt-0.5">
+                    Saved ${(energySavedAccumulated * 0.12).toFixed(2)}
+                  </div>
+                </div>
+                <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
+                  <Coins size={16} />
+                </div>
+              </div>
+
+              {/* Auto-shutdown count */}
+              <div className="px-3 py-2 bg-indigo-500/5 rounded-xl border border-indigo-500/10 flex justify-between items-center">
+                <span className="text-[10px] font-semibold text-slate-500">Auto-Shutdowns</span>
                 <span className="font-mono text-indigo-400 text-xs font-black">{autoShutdownEvents}</span>
               </div>
-            </div>
+            </motion.div>
 
-            {/* Event Timeline Logs */}
-            <div className="p-6 rounded-3xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-md flex flex-col gap-3">
+            {/* ── Event Timeline Logs ── */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.3 }}
+              className="p-5 rounded-3xl bg-gradient-to-br from-slate-900/60 to-slate-950/80 border border-slate-700/40 backdrop-blur-md shadow-lg flex flex-col gap-3"
+            >
               <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <Clock size={15} className="text-indigo-400" />
+                <div className="p-1 bg-indigo-500/10 rounded-lg border border-indigo-500/20">
+                  <Clock size={13} className="text-indigo-400" />
+                </div>
                 <span>Event Timeline</span>
+                {simulationLogs.length > 0 && (
+                  <span className="ml-auto text-[9px] font-mono text-slate-600 bg-slate-800/40 px-1.5 py-0.5 rounded">{simulationLogs.length}</span>
+                )}
               </h3>
-              
-              <div className="h-[180px] overflow-y-auto pr-1 flex flex-col gap-2.5 select-none custom-scrollbar">
+
+              <div className="h-[200px] overflow-y-auto pr-1 flex flex-col gap-2 select-none custom-scrollbar">
                 {simulationLogs.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center text-center text-slate-600 gap-1 my-6">
-                    <Clock size={20} className="opacity-45" />
-                    <span className="text-[10px] font-bold">No simulation logs yet</span>
+                  <div className="h-full flex flex-col items-center justify-center text-center text-slate-600 gap-2 my-6">
+                    <Clock size={22} className="opacity-30" />
+                    <span className="text-[10px] font-bold">No events yet</span>
+                    <span className="text-[9px] text-slate-700">Interact with rooms to generate events</span>
                   </div>
                 ) : (
                   simulationLogs.map((log) => (
-                    <div key={log.id} className="text-[10px] leading-relaxed border-b border-slate-900 pb-2 last:border-0 last:pb-0">
+                    <motion.div
+                      key={log.id}
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className={`text-[10px] leading-relaxed p-2 rounded-xl border-l-2 ${
+                        log.type === 'shutdown'
+                          ? 'border-l-emerald-500 bg-emerald-950/20'
+                          : log.type === 'enter'
+                          ? 'border-l-indigo-500 bg-indigo-950/20'
+                          : 'border-l-slate-600 bg-slate-950/20'
+                      }`}
+                    >
                       <div className="flex justify-between font-bold text-slate-500 mb-0.5">
-                        <span className="font-mono">{log.time}</span>
-                        <span className="uppercase text-[9px] text-indigo-500">{t(`room.${log.room}`) || log.room}</span>
+                        <span className="font-mono text-[9px]">{log.time}</span>
+                        <span className={`uppercase text-[8px] px-1 py-0.5 rounded ${
+                          log.type === 'shutdown' ? 'text-emerald-400 bg-emerald-500/10'
+                          : log.type === 'enter' ? 'text-indigo-400 bg-indigo-500/10'
+                          : 'text-slate-400 bg-slate-500/10'
+                        }`}>{t(`room.${log.room}`) || log.room}</span>
                       </div>
                       <p className={`font-semibold ${
                         log.type === 'shutdown' ? 'text-emerald-400' : log.type === 'enter' ? 'text-indigo-300' : 'text-slate-300'
                       }`}>
                         {log.text}
                       </p>
-                    </div>
+                    </motion.div>
                   ))
                 )}
               </div>
-            </div>
+            </motion.div>
 
           </div>
         </div>
