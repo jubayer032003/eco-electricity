@@ -8,7 +8,7 @@ services:
     startCommand: npm start
     envVars:
       - key: PORT
-        value: 5000
+        value: "5000"
       - key: GEMINI_API_KEY
         sync: false
       - key: DISCORD_TOKEN
@@ -21,9 +21,8 @@ services:
         sync: false
 
   # 2. Frontend Static Site (Vite Single Page App)
-  - type: web
+  - type: static
     name: eco-electricity-frontend
-    env: static
     rootDir: frontend
     buildCommand: npm install && npm run build
     publishDir: dist
