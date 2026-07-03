@@ -1,14 +1,12 @@
 import React from 'react';
 import { useSocket } from '../context/SocketContext';
-import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
-import { Power, Shield, ShieldAlert, Cpu, Layers, Sun, Moon, Languages } from 'lucide-react';
+import { Power, Shield, ShieldAlert, Cpu, Layers } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const Header: React.FC = () => {
-  const { devices, powerState, simulationRunning } = useSocket();
-  const { theme, toggleTheme } = useTheme();
-  const { language, toggleLanguage, t } = useLanguage();
+  const { devices, powerState } = useSocket();
+  const { t } = useLanguage();
 
   const activePower = powerState?.totalPowerDraw || 0;
   const activeDevices = devices.filter((d) => d.status === 'ON').length;
@@ -30,49 +28,6 @@ export const Header: React.FC = () => {
       </div>
 
       <div className="flex items-center gap-3 flex-wrap">
-        {/* Toggle Buttons */}
-        <div className="flex items-center gap-2">
-          {/* Dark / Light Toggle */}
-          <motion.button
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.92 }}
-            onClick={toggleTheme}
-            className={`relative flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold border transition-all duration-300 ${
-              theme === 'dark'
-                ? 'bg-slate-800/80 border-slate-600/50 text-amber-400 hover:bg-slate-700/80 hover:border-amber-500/30'
-                : 'bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100 shadow-sm'
-            }`}
-            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          >
-            <motion.div
-              key={theme}
-              initial={{ rotate: -90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-            >
-              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-            </motion.div>
-            <span className="hidden sm:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
-          </motion.button>
-
-          {/* Bangla / English Toggle */}
-          <motion.button
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.92 }}
-            onClick={toggleLanguage}
-            className={`relative flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold border transition-all duration-300 ${
-              language === 'en'
-                ? 'bg-slate-800/80 border-slate-600/50 text-emerald-400 hover:bg-slate-700/80 hover:border-emerald-500/30'
-                : 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100 shadow-sm'
-            }`}
-            title={language === 'en' ? 'Switch to Bangla' : 'Switch to English'}
-          >
-            <Languages size={16} />
-            <span className="font-bold">
-              {language === 'en' ? 'বাংলা' : 'ENG'}
-            </span>
-          </motion.button>
-        </div>
 
         {/* Status Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
