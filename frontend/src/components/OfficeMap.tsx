@@ -279,9 +279,9 @@ export const OfficeMap: React.FC = () => {
                 <div className="relative p-4 min-h-[300px] bg-[#d2beaa] text-slate-900 border-b-4 md:border-b-0 md:border-r-4 border-slate-700 flex flex-col justify-between overflow-hidden">
                   {/* Top Lights & Fan */}
                   <div className="flex justify-between items-center z-10">
-                    {renderTopDownLight(getRoomDevices('drawing')[1] || { id: 'drawing-light-1', status: 'OFF' } as Device)}
+                    {renderTopDownLight(getRoomDevices('drawing')[2] || { id: 'drawing-light-1', status: 'OFF' } as Device)}
                     {renderTopDownFan(getRoomDevices('drawing')[0] || { id: 'drawing-fan-1', status: 'OFF' } as Device)}
-                    {renderTopDownLight(getRoomDevices('drawing')[2] || { id: 'drawing-light-2', status: 'OFF' } as Device)}
+                    {renderTopDownLight(getRoomDevices('drawing')[3] || { id: 'drawing-light-2', status: 'OFF' } as Device)}
                   </div>
 
                   {/* Room Name Header */}
@@ -310,7 +310,7 @@ export const OfficeMap: React.FC = () => {
                   <div className="flex justify-between items-center z-10 mt-2">
                     <div className="w-6 h-6" /> {/* Spacer */}
                     {renderTopDownFan(getRoomDevices('drawing')[1] || { id: 'drawing-fan-2', status: 'OFF' } as Device)}
-                    {renderTopDownLight(getRoomDevices('drawing')[3] || { id: 'drawing-light-3', status: 'OFF' } as Device)}
+                    {renderTopDownLight(getRoomDevices('drawing')[4] || { id: 'drawing-light-3', status: 'OFF' } as Device)}
                   </div>
 
                   {/* Decorative Potted Plants */}
@@ -327,9 +327,9 @@ export const OfficeMap: React.FC = () => {
                 <div className="relative p-4 min-h-[300px] bg-[#d5d8dc] text-slate-900 border-b-4 md:border-b-0 md:border-r-4 border-slate-700 flex flex-col justify-between overflow-hidden">
                   {/* Top Lights & Fan */}
                   <div className="flex justify-between items-center z-10">
-                    {renderTopDownLight(getRoomDevices('work1')[1] || { id: 'work1-light-1', status: 'OFF' } as Device)}
+                    {renderTopDownLight(getRoomDevices('work1')[2] || { id: 'work1-light-1', status: 'OFF' } as Device)}
                     {renderTopDownFan(getRoomDevices('work1')[0] || { id: 'work1-fan-1', status: 'OFF' } as Device)}
-                    {renderTopDownLight(getRoomDevices('work1')[2] || { id: 'work1-light-2', status: 'OFF' } as Device)}
+                    {renderTopDownLight(getRoomDevices('work1')[3] || { id: 'work1-light-2', status: 'OFF' } as Device)}
                   </div>
 
                   {/* Workstation Desks Grid (4 Employees) */}
@@ -369,7 +369,7 @@ export const OfficeMap: React.FC = () => {
                   <div className="flex justify-between items-center z-10 mt-2">
                     <div className="w-6 h-6" />
                     {renderTopDownFan(getRoomDevices('work1')[1] || { id: 'work1-fan-2', status: 'OFF' } as Device)}
-                    {renderTopDownLight(getRoomDevices('work1')[3] || { id: 'work1-light-3', status: 'OFF' } as Device)}
+                    {renderTopDownLight(getRoomDevices('work1')[4] || { id: 'work1-light-3', status: 'OFF' } as Device)}
                   </div>
 
                   {/* Door Swing Arc */}
@@ -382,9 +382,9 @@ export const OfficeMap: React.FC = () => {
                 <div className="relative p-4 min-h-[300px] bg-[#cbb297] text-slate-900 flex flex-col justify-between overflow-hidden">
                   {/* Top Lights & Fan */}
                   <div className="flex justify-between items-center z-10">
-                    {renderTopDownLight(getRoomDevices('work2')[1] || { id: 'work2-light-1', status: 'OFF' } as Device)}
+                    {renderTopDownLight(getRoomDevices('work2')[2] || { id: 'work2-light-1', status: 'OFF' } as Device)}
                     {renderTopDownFan(getRoomDevices('work2')[0] || { id: 'work2-fan-1', status: 'OFF' } as Device)}
-                    {renderTopDownLight(getRoomDevices('work2')[2] || { id: 'work2-light-2', status: 'OFF' } as Device)}
+                    {renderTopDownLight(getRoomDevices('work2')[3] || { id: 'work2-light-2', status: 'OFF' } as Device)}
                   </div>
 
                   {/* Workstation Desks Top Grid (4 Employees) */}
@@ -424,7 +424,7 @@ export const OfficeMap: React.FC = () => {
                   <div className="flex justify-between items-center z-10 mt-2">
                     <div className="w-6 h-6" />
                     {renderTopDownFan(getRoomDevices('work2')[1] || { id: 'work2-fan-2', status: 'OFF' } as Device)}
-                    {renderTopDownLight(getRoomDevices('work2')[3] || { id: 'work2-light-3', status: 'OFF' } as Device)}
+                    {renderTopDownLight(getRoomDevices('work2')[4] || { id: 'work2-light-3', status: 'OFF' } as Device)}
                   </div>
 
                   {/* Door Swing Arc */}
