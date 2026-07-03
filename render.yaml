@@ -2,7 +2,7 @@ services:
   # 1. Backend Web Service (Node.js)
   - type: web
     name: eco-electricity-backend
-    env: node
+    runtime: node
     rootDir: backend
     buildCommand: npm install && npm run build
     startCommand: npm start
@@ -20,12 +20,13 @@ services:
       - key: DISCORD_CHANNEL_ID
         sync: false
 
-staticSites:
   # 2. Frontend Static Site (Vite Single Page App)
-  - name: eco-electricity-frontend
+  - type: web
+    name: eco-electricity-frontend
+    runtime: static
     rootDir: frontend
     buildCommand: npm install && npm run build
-    publishDir: dist
+    staticPublishPath: dist
     envVars:
       - key: VITE_BACKEND_URL
         sync: false
