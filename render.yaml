@@ -21,8 +21,9 @@ services:
         sync: false
 
   # 2. Frontend Static Site (Vite Single Page App)
-  - type: static
+  - type: web
     name: eco-electricity-frontend
+    env: static
     rootDir: frontend
     buildCommand: npm install && npm run build
     publishDir: dist
