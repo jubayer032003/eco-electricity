@@ -626,6 +626,7 @@ export const OfficeMap: React.FC = () => {
               const activeCount = roomDevices.filter((d) => d.status === 'ON').length;
               const totalCount = roomDevices.length;
               const isAnyActive = activeCount > 0;
+              const isOccupied = occupancy[roomId] || false;
               const fans = roomDevices.filter((d) => d.type === 'fan');
               const lights = roomDevices.filter((d) => d.type === 'light');
 
@@ -645,7 +646,7 @@ export const OfficeMap: React.FC = () => {
                     <div>
                       <h4 className="text-sm font-bold text-white tracking-wide">{t(`room.${roomId}`)}</h4>
                       <span className="text-[10px] text-slate-400 font-semibold mt-0.5 block">
-                        {activeCount} / {totalCount} {t('office.devicesOn')}
+                        {activeCount} / {totalCount} {t('office.devicesOn')} • {isOccupied ? '👤 Occupied' : '🚫 Empty'}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 border px-2.5 py-1 rounded-lg text-xs font-black text-indigo-400 bg-indigo-950/60 border-indigo-500/40">
