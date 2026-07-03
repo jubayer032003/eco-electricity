@@ -5,7 +5,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 export class SummaryGenerator {
   private lastAISummary = '';
   private lastSummaryTime = 0;
-  private throttleInterval = 10000; // Throttle LLM requests to once every 10 seconds
+  private throttleInterval = 60000; // Throttle LLM requests to once every 60 seconds (1 minute)
 
   async generateSummary(devices: Device[], totalPowerDraw: number): Promise<string> {
     const activeCount = devices.filter((d) => d.status === 'ON').length;
