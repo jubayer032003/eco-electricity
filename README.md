@@ -1,6 +1,8 @@
-# Office IoT Power Monitoring System
+# Eco Electricity: AI-Powered Smart Office IoT & Energy Analytics Dashboard
 
-A production-ready full-stack Office IoT Power Monitoring System. This system monitors 15 simulated electrical devices (2 fans and 3 lights across 3 rooms) from a single shared backend, exposing real-time status and control through both a **React Web Dashboard** and a **Discord Gateway Bot**.
+An enterprise-ready full-stack Office IoT Power Monitoring & Smart Automation System. This system monitors 15 simulated electrical devices (2 fans and 3 lights across 3 rooms) from a single shared backend, exposing real-time status, analytics, and control through a **React Web Dashboard** (featuring interactive 2D/3D Floor Plan Schematics), an **AI Assistant Chatbot** powered by Google Gemini (`gemini-2.5-flash`), a **Discord Gateway Operations Bot**, and a fully customizable **Automation Rules Engine**.
+
+All energy and financial audits are calculated in real-time in **Bangladeshi Taka (৳ / Tk)** using the official **Bangladesh Commercial Tariff Rate of Tk 12.39 per kWh**.
 
 ---
 
@@ -81,6 +83,19 @@ DISCORD_CLIENT_ID=your_client_id_here
 DISCORD_GUILD_ID=your_guild_id_here
 DISCORD_CHANNEL_ID=your_alert_channel_id_here
 ```
+
+---
+
+## 🌐 Deploying to Render (Free Tier)
+This project is configured with a Render Blueprint configuration file (`render.yaml`) in the root directory. To deploy both the Node.js backend and the React/Vite frontend:
+1. Log in to [Render](https://dashboard.render.com/).
+2. Click **New +** and select **Blueprint**.
+3. Link your GitHub repository (`eco-electricity`).
+4. When prompted, fill in the environment variable values:
+   - `GEMINI_API_KEY`: Your Google Gemini API Key
+   - `DISCORD_TOKEN`, `DISCORD_CLIENT_ID`, `DISCORD_GUILD_ID`, `DISCORD_CHANNEL_ID`: Discord bot config
+   - `VITE_BACKEND_URL`: Paste the URL of your deployed backend service (e.g. `https://eco-electricity-backend.onrender.com`)
+5. Click **Apply**. Render will install, compile, and host both services automatically on the Free Tier!
 
 ---
 
