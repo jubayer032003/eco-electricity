@@ -90,6 +90,38 @@ export class RuleEvaluator {
         },
         priority: 'HIGH'
       },
+      {
+        id: 'rule-occupancy-drawing-lights-on',
+        name: 'Drawing Room Occupancy Lights ON',
+        enabled: true,
+        triggerType: 'OCCUPANCY',
+        condition: {
+          operator: 'EQUALS',
+          value: 'occupied',
+          room: 'drawing'
+        },
+        action: {
+          target: 'ALL_LIGHTS',
+          value: 'ON'
+        },
+        priority: 'HIGH'
+      },
+      {
+        id: 'rule-occupancy-drawing-fans-on',
+        name: 'Drawing Room Occupancy Fans ON',
+        enabled: true,
+        triggerType: 'OCCUPANCY',
+        condition: {
+          operator: 'EQUALS',
+          value: 'occupied',
+          room: 'drawing'
+        },
+        action: {
+          target: 'ALL_FANS',
+          value: 'ON'
+        },
+        priority: 'HIGH'
+      },
       // ── WORK ROOM 1 OCCUPANCY ──
       {
         id: 'rule-occupancy-work1-lights',
@@ -123,6 +155,38 @@ export class RuleEvaluator {
         },
         priority: 'HIGH'
       },
+      {
+        id: 'rule-occupancy-work1-lights-on',
+        name: 'Work Room 1 Occupancy Lights ON',
+        enabled: true,
+        triggerType: 'OCCUPANCY',
+        condition: {
+          operator: 'EQUALS',
+          value: 'occupied',
+          room: 'work1'
+        },
+        action: {
+          target: 'ALL_LIGHTS',
+          value: 'ON'
+        },
+        priority: 'HIGH'
+      },
+      {
+        id: 'rule-occupancy-work1-fans-on',
+        name: 'Work Room 1 Occupancy Fans ON',
+        enabled: true,
+        triggerType: 'OCCUPANCY',
+        condition: {
+          operator: 'EQUALS',
+          value: 'occupied',
+          room: 'work1'
+        },
+        action: {
+          target: 'ALL_FANS',
+          value: 'ON'
+        },
+        priority: 'HIGH'
+      },
       // ── WORK ROOM 2 OCCUPANCY ──
       {
         id: 'rule-occupancy-work2-lights',
@@ -153,6 +217,38 @@ export class RuleEvaluator {
         action: {
           target: 'ALL_FANS',
           value: 'OFF'
+        },
+        priority: 'HIGH'
+      },
+      {
+        id: 'rule-occupancy-work2-lights-on',
+        name: 'Work Room 2 Occupancy Lights ON',
+        enabled: true,
+        triggerType: 'OCCUPANCY',
+        condition: {
+          operator: 'EQUALS',
+          value: 'occupied',
+          room: 'work2'
+        },
+        action: {
+          target: 'ALL_LIGHTS',
+          value: 'ON'
+        },
+        priority: 'HIGH'
+      },
+      {
+        id: 'rule-occupancy-work2-fans-on',
+        name: 'Work Room 2 Occupancy Fans ON',
+        enabled: true,
+        triggerType: 'OCCUPANCY',
+        condition: {
+          operator: 'EQUALS',
+          value: 'occupied',
+          room: 'work2'
+        },
+        action: {
+          target: 'ALL_FANS',
+          value: 'ON'
         },
         priority: 'HIGH'
       }
