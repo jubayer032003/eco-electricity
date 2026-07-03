@@ -2,10 +2,9 @@ import React from 'react';
 import { useSocket } from '../context/SocketContext';
 import { useLanguage } from '../context/LanguageContext';
 import { Power, Shield, ShieldAlert, Cpu, Layers } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 export const Header: React.FC = () => {
-  const { devices, powerState } = useSocket();
+  const { devices, powerState, simulationRunning } = useSocket();
   const { t } = useLanguage();
 
   const activePower = powerState?.totalPowerDraw || 0;
