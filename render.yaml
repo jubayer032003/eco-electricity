@@ -1,0 +1,35 @@
+services:
+  # 1. Backend Web Service (Node.js)
+  - type: web
+    name: eco-electricity-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: DISCORD_CLIENT_ID
+        sync: false
+      - key: DISCORD_GUILD_ID
+        sync: false
+      - key: DISCORD_CHANNEL_ID
+        sync: false
+
+  # 2. Frontend Static Site (Vite Single Page App)
+  - type: web
+    name: eco-electricity-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    publishDir: dist
+    envVars:
+      - key: VITE_BACKEND_URL
+        fromService:
+          name: eco-electricity-backend
+          type: web
+          property: host
