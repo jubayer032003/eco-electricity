@@ -29,12 +29,25 @@ export class SummaryGenerator {
     const currentHour = new Date().getHours();
     const isAfterHours = currentHour < 9 || currentHour >= 17;
 
+    // 2. Fallback rule-based natural language generator
+    let fallbackText = 'The office is operating normally.';
+    if (totalPowerDraw === 0) {
+      fallbackText = 'All systems are offline, and zero power is being drawn.';
+    } else if (isAfterHours) {
+      fallbackText = `The office is currently drawing ${totalPowerDraw}W during after-hours, mainly due to active loads in the ${roomLabels[maxRoom.roomId]}.`;
+    } else {
+      fallbackText = `Currently, ${activeCount} of ${totalCount} devices are active. We are drawing a total of ${totalPowerDraw}W, with the ${roomLabels[maxRoom.roomId]} representing the highest load at ${maxRoom.power}W.`;
+    }
+
     // 1. Try Gemini LLM if key is configured (with throttling)
     if (config.geminiApiKey && config.geminiApiKey !== 'your_gemini_api_key_here') {
       const now = Date.now();
-      if (now - this.lastSummaryTime < this.throttleInterval && this.lastAISummary) {
-        return this.lastAISummary;
+      if (now - this.lastSummaryTime < this.throttleInterval) {
+        return this.lastAISummary || fallbackText;
       }
+
+      // Update throttling timestamp immediately to prevent concurrent retries on subsequent ticks
+      this.lastSummaryTime = now;
 
       try {
         const ai = new GoogleGenerativeAI(config.geminiApiKey);
@@ -61,7 +74,6 @@ Instructions:
         const text = result.response.text().trim();
         if (text) {
           this.lastAISummary = text;
-          this.lastSummaryTime = now;
           return text;
         }
       } catch (err) {
@@ -69,16 +81,6 @@ Instructions:
       }
     }
 
-    // 2. Fallback rule-based natural language generator
-    let statusText = 'The office is operating normally.';
-    if (totalPowerDraw === 0) {
-      statusText = 'All systems are offline, and zero power is being drawn.';
-    } else if (isAfterHours) {
-      statusText = `The office is currently drawing ${totalPowerDraw}W during after-hours, mainly due to active loads in the ${roomLabels[maxRoom.roomId]}.`;
-    } else {
-      statusText = `Currently, ${activeCount} of ${totalCount} devices are active. We are drawing a total of ${totalPowerDraw}W, with the ${roomLabels[maxRoom.roomId]} representing the highest load at ${maxRoom.power}W.`;
-    }
-
-    return statusText;
+    return fallbackText;
   }
 }
