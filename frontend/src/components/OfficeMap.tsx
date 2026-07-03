@@ -5,6 +5,8 @@ import { Fan, Lightbulb, Power, Layers, ArrowUp, Compass, SlidersHorizontal, Pla
 import type { RoomId, Device } from '../types';
 import { motion } from 'framer-motion';
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+
 export const OfficeMap: React.FC = () => {
   const { devices, powerState, toggleDevice, socket, simulationRunning, simulationSpeed, toggleSimulation, resetSimulation, triggerDemoMode } = useSocket();
   const { t } = useLanguage();
@@ -37,7 +39,7 @@ export const OfficeMap: React.FC = () => {
 
   // Query occupancy status on load & listen to real-time events
   useEffect(() => {
-    fetch('http://localhost:5000/automation/status')
+    fetch(`${BACKEND_URL}/automation/status`)
       .then((res) => res.json())
       .then((data) => {
         if (data.occupancy) setOccupancy(data.occupancy);
@@ -61,6 +63,64 @@ export const OfficeMap: React.FC = () => {
   const getRoomPower = (room: RoomId) => {
     const summary = powerState?.rooms.find((r) => r.room === room);
     return summary?.powerDraw || 0;
+  };
+
+  const toggleRoomOccupancy = async (roomId: RoomId, currentOccupancy: boolean) => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/automation/occupancy`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ room: roomId, occupied: !currentOccupancy })
+      });
+      if (!res.ok) {
+        console.error('Failed to toggle occupancy');
+      }
+    } catch (err) {
+      console.error('Error toggling occupancy:', err);
+    }
+  };
+
+  const renderTopDownPerson = (pulseDelay = 0) => {
+    return (
+      <motion.div
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0, opacity: 0 }}
+        transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+        className="absolute w-8 h-8 pointer-events-none z-10"
+      >
+        <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md">
+          {/* Pulsing Aura Circle */}
+          <circle
+            cx="50"
+            cy="50"
+            r="40"
+            fill="none"
+            stroke="#6366f1"
+            strokeWidth="3"
+            className="animate-pulse"
+            style={{ animationDelay: `${pulseDelay}s` }}
+          />
+          <circle
+            cx="50"
+            cy="50"
+            r="30"
+            fill="url(#personGradient)"
+          />
+          {/* Shoulders */}
+          <path d="M 18,72 Q 50,55 82,72 L 82,90 Q 50,80 18,90 Z" fill="#4f46e5" />
+          {/* Head */}
+          <circle cx="50" cy="45" r="16" fill="#818cf8" stroke="#312e81" strokeWidth="2" />
+          
+          <defs>
+            <radialGradient id="personGradient" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#818cf8" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.1" />
+            </radialGradient>
+          </defs>
+        </svg>
+      </motion.div>
+    );
   };
 
   // Top-down 2D Ceiling Fan SVG Component (Realistic Mahogany & Brass Design)
@@ -284,17 +344,36 @@ export const OfficeMap: React.FC = () => {
                     {renderTopDownLight(getRoomDevices('drawing')[3] || { id: 'drawing-light-2', status: 'OFF' } as Device)}
                   </div>
 
-                  {/* Room Name Header */}
-                  <div className="text-center font-black text-xs uppercase tracking-widest my-2 text-slate-800 z-10">
-                    {t('room.drawing')}
+                  {/* Room Name Header & Occupancy Toggle */}
+                  <div className="text-center flex flex-col items-center gap-1 z-10">
+                    <div className="font-black text-xs uppercase tracking-widest text-slate-800">
+                      {t('room.drawing')}
+                    </div>
+                    <button
+                      onClick={() => toggleRoomOccupancy('drawing', occupancy.drawing || false)}
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border transition-all duration-300 ${
+                        occupancy.drawing
+                          ? 'bg-indigo-600/90 text-white border-indigo-500/50 shadow-md shadow-indigo-500/20 hover:bg-indigo-600'
+                          : 'bg-slate-200/90 text-slate-600 border-slate-300/50 hover:bg-slate-200'
+                      }`}
+                    >
+                      {occupancy.drawing ? '👤 Occupied' : '🚫 Empty'}
+                    </button>
                   </div>
 
                   {/* Furnishings: Sofa, Coffee Table, Rug, Armchair */}
                   <div className="relative my-2 flex items-center justify-between">
                     {/* Sofa Couch along left wall */}
-                    <div className="w-7 h-28 bg-[#9c8978] border-2 border-[#736354] rounded-sm shadow-sm flex flex-col justify-between p-0.5">
-                      <div className="w-full h-6 border-b border-[#736354]" />
-                      <div className="w-full h-6 border-b border-[#736354]" />
+                    <div className="relative w-7 h-28 bg-[#9c8978] border-2 border-[#736354] rounded-sm shadow-sm flex items-center justify-center p-0.5">
+                      <div className="absolute inset-0 flex flex-col justify-between p-0.5 pointer-events-none">
+                        <div className="w-full h-6 border-b border-[#736354]" />
+                        <div className="w-full h-6 border-b border-[#736354]" />
+                      </div>
+                      {occupancy.drawing && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          {renderTopDownPerson(0)}
+                        </div>
+                      )}
                     </div>
 
                     {/* Rug & Coffee Table */}
@@ -335,33 +414,63 @@ export const OfficeMap: React.FC = () => {
                   {/* Workstation Desks Grid (4 Employees) */}
                   <div className="grid grid-cols-2 gap-4 my-2 z-10">
                     {/* Desk 1 */}
-                    <div className="bg-[#bda893] border border-[#968270] p-1.5 rounded shadow-sm flex flex-col items-center">
-                      <div className="w-5 h-3 bg-slate-900 rounded-xs border border-slate-700" />
-                      <div className="w-4 h-3 bg-slate-800 rounded-full mt-1" />
+                    <div className="relative bg-[#bda893] border border-[#968270] p-1.5 rounded shadow-sm flex flex-col items-center justify-center min-h-[48px]">
+                      <div className="flex flex-col items-center">
+                        <div className="w-5 h-3 bg-slate-900 rounded-xs border border-slate-700" />
+                        <div className="w-4 h-3 bg-slate-800 rounded-full mt-1" />
+                      </div>
+                      {occupancy.work1 && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          {renderTopDownPerson(0)}
+                        </div>
+                      )}
                     </div>
                     {/* Desk 2 */}
-                    <div className="bg-[#bda893] border border-[#968270] p-1.5 rounded shadow-sm flex flex-col items-center">
-                      <div className="w-5 h-3 bg-slate-900 rounded-xs border border-slate-700" />
-                      <div className="w-4 h-3 bg-slate-800 rounded-full mt-1" />
+                    <div className="relative bg-[#bda893] border border-[#968270] p-1.5 rounded shadow-sm flex flex-col items-center justify-center min-h-[48px]">
+                      <div className="flex flex-col items-center">
+                        <div className="w-5 h-3 bg-slate-900 rounded-xs border border-slate-700" />
+                        <div className="w-4 h-3 bg-slate-800 rounded-full mt-1" />
+                      </div>
                     </div>
                   </div>
 
-                  {/* Room Name Header */}
-                  <div className="text-center font-black text-xs uppercase tracking-widest my-1 text-slate-800 z-10">
-                    {t('room.work1')}
+                  {/* Room Name Header & Occupancy Toggle */}
+                  <div className="text-center flex flex-col items-center gap-1 z-10">
+                    <div className="font-black text-xs uppercase tracking-widest text-slate-800">
+                      {t('room.work1')}
+                    </div>
+                    <button
+                      onClick={() => toggleRoomOccupancy('work1', occupancy.work1 || false)}
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border transition-all duration-300 ${
+                        occupancy.work1
+                          ? 'bg-indigo-600/90 text-white border-indigo-500/50 shadow-md shadow-indigo-500/20 hover:bg-indigo-600'
+                          : 'bg-slate-200/90 text-slate-600 border-slate-300/50 hover:bg-slate-200'
+                      }`}
+                    >
+                      {occupancy.work1 ? '👤 Occupied' : '🚫 Empty'}
+                    </button>
                   </div>
 
                   {/* Workstation Desks Bottom Grid */}
                   <div className="grid grid-cols-2 gap-4 my-2 z-10">
                     {/* Desk 3 */}
-                    <div className="bg-[#bda893] border border-[#968270] p-1.5 rounded shadow-sm flex flex-col items-center">
-                      <div className="w-5 h-3 bg-slate-900 rounded-xs border border-slate-700" />
-                      <div className="w-4 h-3 bg-slate-800 rounded-full mt-1" />
+                    <div className="relative bg-[#bda893] border border-[#968270] p-1.5 rounded shadow-sm flex flex-col items-center justify-center min-h-[48px]">
+                      <div className="flex flex-col items-center">
+                        <div className="w-5 h-3 bg-slate-900 rounded-xs border border-slate-700" />
+                        <div className="w-4 h-3 bg-slate-800 rounded-full mt-1" />
+                      </div>
+                      {occupancy.work1 && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          {renderTopDownPerson(0.5)}
+                        </div>
+                      )}
                     </div>
                     {/* Desk 4 */}
-                    <div className="bg-[#bda893] border border-[#968270] p-1.5 rounded shadow-sm flex flex-col items-center">
-                      <div className="w-5 h-3 bg-slate-900 rounded-xs border border-slate-700" />
-                      <div className="w-4 h-3 bg-slate-800 rounded-full mt-1" />
+                    <div className="relative bg-[#bda893] border border-[#968270] p-1.5 rounded shadow-sm flex flex-col items-center justify-center min-h-[48px]">
+                      <div className="flex flex-col items-center">
+                        <div className="w-5 h-3 bg-slate-900 rounded-xs border border-slate-700" />
+                        <div className="w-4 h-3 bg-slate-800 rounded-full mt-1" />
+                      </div>
                     </div>
                   </div>
 
@@ -390,33 +499,63 @@ export const OfficeMap: React.FC = () => {
                   {/* Workstation Desks Top Grid (4 Employees) */}
                   <div className="grid grid-cols-2 gap-4 my-2 z-10">
                     {/* Desk 1 */}
-                    <div className="bg-[#b09983] border border-[#8a7561] p-1.5 rounded shadow-sm flex flex-col items-center">
-                      <div className="w-5 h-3 bg-slate-900 rounded-xs border border-slate-700" />
-                      <div className="w-4 h-3 bg-slate-800 rounded-full mt-1" />
+                    <div className="relative bg-[#b09983] border border-[#8a7561] p-1.5 rounded shadow-sm flex flex-col items-center justify-center min-h-[48px]">
+                      <div className="flex flex-col items-center">
+                        <div className="w-5 h-3 bg-slate-900 rounded-xs border border-slate-700" />
+                        <div className="w-4 h-3 bg-slate-800 rounded-full mt-1" />
+                      </div>
+                      {occupancy.work2 && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          {renderTopDownPerson(0.2)}
+                        </div>
+                      )}
                     </div>
                     {/* Desk 2 */}
-                    <div className="bg-[#b09983] border border-[#8a7561] p-1.5 rounded shadow-sm flex flex-col items-center">
-                      <div className="w-5 h-3 bg-slate-900 rounded-xs border border-slate-700" />
-                      <div className="w-4 h-3 bg-slate-800 rounded-full mt-1" />
+                    <div className="relative bg-[#b09983] border border-[#8a7561] p-1.5 rounded shadow-sm flex flex-col items-center justify-center min-h-[48px]">
+                      <div className="flex flex-col items-center">
+                        <div className="w-5 h-3 bg-slate-900 rounded-xs border border-slate-700" />
+                        <div className="w-4 h-3 bg-slate-800 rounded-full mt-1" />
+                      </div>
                     </div>
                   </div>
 
-                  {/* Room Name Header */}
-                  <div className="text-center font-black text-xs uppercase tracking-widest my-1 text-slate-800 z-10">
-                    {t('room.work2')}
+                  {/* Room Name Header & Occupancy Toggle */}
+                  <div className="text-center flex flex-col items-center gap-1 z-10">
+                    <div className="font-black text-xs uppercase tracking-widest text-slate-800">
+                      {t('room.work2')}
+                    </div>
+                    <button
+                      onClick={() => toggleRoomOccupancy('work2', occupancy.work2 || false)}
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border transition-all duration-300 ${
+                        occupancy.work2
+                          ? 'bg-indigo-600/90 text-white border-indigo-500/50 shadow-md shadow-indigo-500/20 hover:bg-indigo-600'
+                          : 'bg-slate-200/90 text-slate-600 border-slate-300/50 hover:bg-slate-200'
+                      }`}
+                    >
+                      {occupancy.work2 ? '👤 Occupied' : '🚫 Empty'}
+                    </button>
                   </div>
 
                   {/* Workstation Desks Bottom Grid */}
                   <div className="grid grid-cols-2 gap-4 my-2 z-10">
                     {/* Desk 3 */}
-                    <div className="bg-[#b09983] border border-[#8a7561] p-1.5 rounded shadow-sm flex flex-col items-center">
-                      <div className="w-5 h-3 bg-slate-900 rounded-xs border border-slate-700" />
-                      <div className="w-4 h-3 bg-slate-800 rounded-full mt-1" />
+                    <div className="relative bg-[#b09983] border border-[#8a7561] p-1.5 rounded shadow-sm flex flex-col items-center justify-center min-h-[48px]">
+                      <div className="flex flex-col items-center">
+                        <div className="w-5 h-3 bg-slate-900 rounded-xs border border-slate-700" />
+                        <div className="w-4 h-3 bg-slate-800 rounded-full mt-1" />
+                      </div>
+                      {occupancy.work2 && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          {renderTopDownPerson(0.7)}
+                        </div>
+                      )}
                     </div>
                     {/* Desk 4 */}
-                    <div className="bg-[#b09983] border border-[#8a7561] p-1.5 rounded shadow-sm flex flex-col items-center">
-                      <div className="w-5 h-3 bg-slate-900 rounded-xs border border-slate-700" />
-                      <div className="w-4 h-3 bg-slate-800 rounded-full mt-1" />
+                    <div className="relative bg-[#b09983] border border-[#8a7561] p-1.5 rounded shadow-sm flex flex-col items-center justify-center min-h-[48px]">
+                      <div className="flex flex-col items-center">
+                        <div className="w-5 h-3 bg-slate-900 rounded-xs border border-slate-700" />
+                        <div className="w-4 h-3 bg-slate-800 rounded-full mt-1" />
+                      </div>
                     </div>
                   </div>
 
