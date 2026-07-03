@@ -20,10 +20,9 @@ services:
       - key: DISCORD_CHANNEL_ID
         sync: false
 
+staticSites:
   # 2. Frontend Static Site (Vite Single Page App)
-  - type: web
-    name: eco-electricity-frontend
-    env: static
+  - name: eco-electricity-frontend
     rootDir: frontend
     buildCommand: npm install && npm run build
     publishDir: dist
