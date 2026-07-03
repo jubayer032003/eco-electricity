@@ -18,7 +18,7 @@ export class SimulationService extends EventEmitter {
     super();
     this.speedMultiplier = config.simulationSpeed;
     this.scheduleNextToggle();
-    this.start(); // Auto-start real-time telemetry tick loop
+    // Simulation starts as stopped/paused by default. Users can start it via dashboard.
   }
 
   private scheduleNextToggle() {
