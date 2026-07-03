@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSocket } from '../context/SocketContext';
 import { useLanguage } from '../context/LanguageContext';
-import { Fan, Lightbulb, Power, Layers, ArrowUp, Compass, SlidersHorizontal, Eye, RotateCw, Play, Pause, RotateCcw, Zap } from 'lucide-react';
+import { Fan, Lightbulb, Power, Layers, ArrowUp, Compass, SlidersHorizontal, Play, Pause, RotateCcw, Zap } from 'lucide-react';
 import type { RoomId, Device } from '../types';
 import { motion } from 'framer-motion';
 
@@ -626,7 +626,6 @@ export const OfficeMap: React.FC = () => {
               const activeCount = roomDevices.filter((d) => d.status === 'ON').length;
               const totalCount = roomDevices.length;
               const isAnyActive = activeCount > 0;
-              const isOccupied = occupancy[roomId] || false;
               const fans = roomDevices.filter((d) => d.type === 'fan');
               const lights = roomDevices.filter((d) => d.type === 'light');
 

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import {
-  LayoutDashboard, Sliders, Building2, Brain, BarChart3,
-  Bell, History, Bot, Cpu, Monitor, ChevronLeft, ChevronRight
+  LayoutDashboard, Building2, Brain, BarChart3,
+  History, Bot, Cpu, Monitor, ChevronLeft, ChevronRight
 } from 'lucide-react';
 
 interface NavItem {

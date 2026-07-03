@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSocket } from '../context/SocketContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Zap, Power, Leaf, Moon, Palmtree, Play, Pause, RotateCcw,
+  Power, Leaf, Moon, Palmtree, Play, Pause, RotateCcw,
   Plus, Trash2, Edit3, Check, X, Shield, Activity, Clock,
-  TrendingDown, Users, AlertTriangle, ChevronDown, ChevronUp,
+  TrendingDown, Users, ChevronDown, ChevronUp,
   Settings, Eye, EyeOff, Bot
 } from 'lucide-react';
 
