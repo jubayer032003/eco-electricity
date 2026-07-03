@@ -88,7 +88,7 @@ Instructions:
       const text = result.response.text().trim();
       return text || rawData;
     } catch (err) {
-      console.error('[Discord AI] Failed to conversationalize response, using raw data fallback:', err);
+      console.warn(`[Discord AI] Failed to conversationalize response: ${(err as Error).message}. Using raw data fallback.`);
       return rawData;
     }
   }
@@ -160,7 +160,7 @@ Instructions:
       const text = result.response.text().trim();
       return text || alertMessage;
     } catch (err) {
-      console.error('[Discord AI] Failed to humanize alert message, using raw data fallback:', err);
+      console.warn(`[Discord AI] Failed to humanize alert message: ${(err as Error).message}. Using raw data fallback.`);
       return alertMessage;
     }
   }

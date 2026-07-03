@@ -65,7 +65,7 @@ Instructions:
           return text;
         }
       } catch (err) {
-        console.error('[Summary AI] Failed to generate AI summary, using rule-based fallback:', err);
+        console.warn(`[Summary AI] Failed to generate AI summary: ${(err as Error).message}. Using rule-based fallback.`);
       }
     }
 
