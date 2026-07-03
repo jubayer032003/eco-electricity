@@ -1,0 +1,197 @@
+@import "tailwindcss";
+
+/* ── CSS Custom Properties for theming ─────────────────────── */
+:root {
+  --bg-primary: #020617;
+  --bg-gradient: radial-gradient(circle at top, #1e1b4b 0%, #020617 100%);
+  --bg-glass: rgba(15, 23, 42, 0.45);
+  --bg-glass-glow: rgba(15, 23, 42, 0.6);
+  --bg-card: rgba(15, 23, 42, 0.4);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border-primary: rgba(255, 255, 255, 0.08);
+  --border-card: #1e293b;
+  --border-glow: rgba(99, 102, 241, 0.2);
+  --shadow-glow: rgba(99, 102, 241, 0.1);
+  --scrollbar-track: rgba(15, 23, 42, 0.1);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.15);
+  --scrollbar-hover: rgba(255, 255, 255, 0.3);
+}
+
+/* ── Light Theme Overrides ─────────────────────────────────── */
+.light-theme {
+  --bg-primary: #f1f5f9;
+  --bg-gradient: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 50%, #e0f2fe 100%);
+  --bg-glass: rgba(255, 255, 255, 0.7);
+  --bg-glass-glow: rgba(255, 255, 255, 0.85);
+  --bg-card: rgba(255, 255, 255, 0.6);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border-primary: rgba(0, 0, 0, 0.08);
+  --border-card: #e2e8f0;
+  --border-glow: rgba(99, 102, 241, 0.25);
+  --shadow-glow: rgba(99, 102, 241, 0.15);
+  --scrollbar-track: rgba(0, 0, 0, 0.04);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+  --scrollbar-hover: rgba(0, 0, 0, 0.3);
+}
+
+/* ── Light theme color overrides for Tailwind classes ──────── */
+.light-theme body,
+.light-theme {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  background: var(--bg-gradient) !important;
+}
+
+/* Override dark backgrounds */
+.light-theme .bg-slate-950 { background-color: #f1f5f9 !important; }
+.light-theme .bg-slate-900 { background-color: #f8fafc !important; }
+.light-theme .bg-slate-900\/40,
+.light-theme .bg-slate-900\/60 { background-color: rgba(248, 250, 252, 0.8) !important; }
+.light-theme .bg-slate-800 { background-color: #ffffff !important; }
+.light-theme .bg-slate-800\/40,
+.light-theme .bg-slate-800\/50,
+.light-theme .bg-slate-800\/60 { background-color: rgba(255, 255, 255, 0.7) !important; }
+.light-theme .bg-slate-700\/30,
+.light-theme .bg-slate-700\/50 { background-color: rgba(226, 232, 240, 0.5) !important; }
+
+/* Override text colors */
+.light-theme .text-white { color: #0f172a !important; }
+.light-theme .text-slate-100 { color: #1e293b !important; }
+.light-theme .text-slate-200 { color: #334155 !important; }
+.light-theme .text-slate-300 { color: #475569 !important; }
+.light-theme .text-slate-400 { color: #64748b !important; }
+.light-theme .text-slate-500 { color: #94a3b8 !important; }
+
+/* Override borders */
+.light-theme .border-slate-600,
+.light-theme .border-slate-600\/30,
+.light-theme .border-slate-600\/40,
+.light-theme .border-slate-600\/50 { border-color: #cbd5e1 !important; }
+.light-theme .border-slate-700,
+.light-theme .border-slate-700\/30,
+.light-theme .border-slate-700\/50,
+.light-theme .border-slate-700\/60 { border-color: #e2e8f0 !important; }
+.light-theme .border-slate-800 { border-color: #e2e8f0 !important; }
+
+/* Glass panels */
+.light-theme .glass-panel {
+  background: var(--bg-glass) !important;
+  border-color: var(--border-primary) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+
+.light-theme .glass-panel-glow {
+  background: var(--bg-glass-glow) !important;
+  border-color: var(--border-glow) !important;
+  box-shadow: 0 8px 32px var(--shadow-glow);
+}
+
+/* Input fields */
+.light-theme input,
+.light-theme select,
+.light-theme textarea {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.light-theme input::placeholder { color: #94a3b8 !important; }
+
+/* Sidebar & Quick Access */
+.light-theme .bg-slate-900\/90 { background-color: rgba(255, 255, 255, 0.92) !important; }
+
+/* Hover states for buttons */
+.light-theme .hover\:bg-slate-700\/50:hover { background-color: rgba(226, 232, 240, 0.6) !important; }
+.light-theme .hover\:bg-slate-800\/30:hover { background-color: rgba(241, 245, 249, 0.6) !important; }
+
+/* Gradient buttons keep their colors in light mode */
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: var(--bg-gradient);
+  transition: background-color 0.4s ease, color 0.3s ease;
+}
+
+/* Glassmorphism custom classes */
+.glass-panel {
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-primary);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.glass-panel-glow {
+  background: var(--bg-glass-glow);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glow);
+  box-shadow: 0 8px 32px 0 var(--shadow-glow);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Fan rotation and Light glowing animations */
+@keyframes spin-fan {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.fan-spinning {
+  animation: spin-fan 1.2s linear infinite;
+  transform-origin: center;
+}
+
+.light-glowing {
+  filter: drop-shadow(0 0 8px rgba(253, 224, 71, 0.8));
+}
+
+.light-glowing-active {
+  box-shadow: 0 0 20px 4px rgba(253, 224, 71, 0.4);
+}
+
+/* Dynamic Power Pulsing flow */
+@keyframes power-flow {
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.power-line-active {
+  stroke-dasharray: 6, 6;
+  animation: power-flow 1.5s linear infinite;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-hover);
+}
+
+/* Smooth theme transition on all elements */
+*, *::before, *::after {
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
