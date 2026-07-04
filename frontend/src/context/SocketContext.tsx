@@ -121,6 +121,22 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const toggleDevice = async (id: string, currentStatus: 'ON' | 'OFF') => {
     const targetStatus = currentStatus === 'ON' ? 'OFF' : 'ON';
+
+    // Instant optimistic UI update
+    setDevices((prev) =>
+      prev.map((d) =>
+        d.id === id
+          ? {
+              ...d,
+              status: targetStatus,
+              powerDraw: targetStatus === 'ON' ? (d.type === 'fan' ? 75 : 15) : 0,
+              runtimeCurrentSession: 0,
+              lastChanged: new Date().toISOString()
+            }
+          : d
+      )
+    );
+
     try {
       await fetch(`${BACKEND_URL}/devices/${id}/toggle`, {
         method: 'POST',
