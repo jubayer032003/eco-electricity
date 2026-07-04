@@ -19,7 +19,7 @@ export class AutomationEngine {
   private actionExecutor = new ActionExecutor();
   private activityLogger = new ActivityLogger();
 
-  private isEnabled = false;
+  private isEnabled = true;
   private roomOccupancy: Record<string, boolean> = {
     drawing: true,
     work1: true,

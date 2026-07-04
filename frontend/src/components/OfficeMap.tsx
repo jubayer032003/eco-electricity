@@ -3,7 +3,7 @@ import { useSocket } from '../context/SocketContext';
 import { useLanguage } from '../context/LanguageContext';
 import { Fan, Lightbulb, Layers, ArrowUp, Compass, SlidersHorizontal, Play, Pause, RotateCcw, Zap, UserPlus, UserMinus, Activity, Clock, Coins, TrendingUp } from 'lucide-react';
 import type { RoomId, Device } from '../types';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
@@ -48,13 +48,27 @@ export const OfficeMap: React.FC = () => {
     type: 'enter' | 'exit' | 'shutdown';
   }>>([]);
 
-  // Sync initial occupants representation with backend status
+  // Sync occupants representation with backend status stably
   useEffect(() => {
-    const syncedOccupants = { drawing: 0, work1: 0, work2: 0 };
-    if (occupancy.drawing) syncedOccupants.drawing = 1;
-    if (occupancy.work1) syncedOccupants.work1 = 2;
-    if (occupancy.work2) syncedOccupants.work2 = 2;
-    setRoomOccupants(syncedOccupants);
+    setRoomOccupants((prev) => {
+      const next = { ...prev };
+      if (occupancy.drawing === false) {
+        next.drawing = 0;
+      } else if (occupancy.drawing === true && next.drawing === 0) {
+        next.drawing = 1;
+      }
+      if (occupancy.work1 === false) {
+        next.work1 = 0;
+      } else if (occupancy.work1 === true && next.work1 === 0) {
+        next.work1 = 2;
+      }
+      if (occupancy.work2 === false) {
+        next.work2 = 0;
+      } else if (occupancy.work2 === true && next.work2 === 0) {
+        next.work2 = 2;
+      }
+      return next;
+    });
   }, [occupancy]);
 
   const addLog = (text: string, room: string, type: 'enter' | 'exit' | 'shutdown') => {
@@ -254,13 +268,13 @@ export const OfficeMap: React.FC = () => {
     }
   };
 
-  const renderTopDownPerson = (pulseDelay = 0) => {
+  const renderTopDownPerson = (pulseDelay = 0, startX = 0, startY = 0) => {
     return (
       <motion.div
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0, opacity: 0 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+        initial={{ x: startX, y: startY, scale: 0.2, opacity: 0 }}
+        animate={{ x: 0, y: 0, scale: 1, opacity: 1 }}
+        exit={{ x: startX, y: startY, scale: 0.2, opacity: 0 }}
+        transition={{ type: 'spring', stiffness: 120, damping: 14 }}
         className="absolute w-8 h-8 pointer-events-none z-10"
       >
         <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md">
@@ -1039,11 +1053,11 @@ export const OfficeMap: React.FC = () => {
                           <div className="w-full h-[1px] bg-[#6b5948]" />
                           <div className="w-full h-[1px] bg-[#6b5948]" />
                         </div>
-                        {roomOccupants.drawing > 0 && (
-                          <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateZ(8px)' }}>
-                            {renderTopDownPerson(0)}
-                          </div>
-                        )}
+                        <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateZ(8px)' }}>
+                          <AnimatePresence>
+                            {roomOccupants.drawing >= 1 && renderTopDownPerson(0, 120, 40)}
+                          </AnimatePresence>
+                        </div>
                       </div>
 
                       {/* Coffee Table */}
@@ -1052,11 +1066,11 @@ export const OfficeMap: React.FC = () => {
                       </div>
 
                       {/* Extra person on floor if >1 */}
-                      {roomOccupants.drawing > 1 && (
-                        <div className="absolute right-6 top-1/3" style={{ transform: 'translateZ(6px)' }}>
-                          {renderTopDownPerson(0.3)}
-                        </div>
-                      )}
+                      <div className="absolute right-6 top-1/3" style={{ transform: 'translateZ(6px)' }}>
+                        <AnimatePresence>
+                          {roomOccupants.drawing >= 2 && renderTopDownPerson(0.3, 20, 120)}
+                        </AnimatePresence>
+                      </div>
 
                       {/* Chair */}
                       <div className="absolute right-3 top-8 w-5 h-5 bg-[#a08672] rounded-full border border-[#8a7260] shadow-sm opacity-70" style={{ transform: 'translateZ(3px)' }} />
@@ -1134,19 +1148,25 @@ export const OfficeMap: React.FC = () => {
                               <div className="w-5 h-2 bg-slate-800 rounded-[1px]" />
                               <div className="w-4 h-2.5 bg-slate-700 rounded-full mt-0.5" />
                             </div>
-                            {dIdx === 0 && roomOccupants.work1 >= 1 && (
+                            {dIdx === 0 && (
                               <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateZ(8px)' }}>
-                                {renderTopDownPerson(0)}
+                                <AnimatePresence>
+                                  {roomOccupants.work1 >= 1 && renderTopDownPerson(0, -30, 80)}
+                                </AnimatePresence>
                               </div>
                             )}
-                            {dIdx === 2 && roomOccupants.work1 >= 2 && (
+                            {dIdx === 2 && (
                               <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateZ(8px)' }}>
-                                {renderTopDownPerson(0.4)}
+                                <AnimatePresence>
+                                  {roomOccupants.work1 >= 2 && renderTopDownPerson(0.4, -10, 40)}
+                                </AnimatePresence>
                               </div>
                             )}
-                            {dIdx === 3 && roomOccupants.work1 >= 3 && (
+                            {dIdx === 3 && (
                               <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateZ(8px)' }}>
-                                {renderTopDownPerson(0.8)}
+                                <AnimatePresence>
+                                  {roomOccupants.work1 >= 3 && renderTopDownPerson(0.8, -60, 40)}
+                                </AnimatePresence>
                               </div>
                             )}
                           </div>
@@ -1229,19 +1249,25 @@ export const OfficeMap: React.FC = () => {
                               <div className="w-5 h-2 bg-slate-800 rounded-[1px]" />
                               <div className="w-4 h-2.5 bg-slate-700 rounded-full mt-0.5" />
                             </div>
-                            {dIdx === 0 && roomOccupants.work2 >= 1 && (
+                            {dIdx === 0 && (
                               <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateZ(8px)' }}>
-                                {renderTopDownPerson(0.1)}
+                                <AnimatePresence>
+                                  {roomOccupants.work2 >= 1 && renderTopDownPerson(0.1, -30, 80)}
+                                </AnimatePresence>
                               </div>
                             )}
-                            {dIdx === 2 && roomOccupants.work2 >= 2 && (
+                            {dIdx === 2 && (
                               <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateZ(8px)' }}>
-                                {renderTopDownPerson(0.3)}
+                                <AnimatePresence>
+                                  {roomOccupants.work2 >= 2 && renderTopDownPerson(0.3, -10, 40)}
+                                </AnimatePresence>
                               </div>
                             )}
-                            {dIdx === 3 && roomOccupants.work2 >= 3 && (
+                            {dIdx === 3 && (
                               <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateZ(8px)' }}>
-                                {renderTopDownPerson(0.7)}
+                                <AnimatePresence>
+                                  {roomOccupants.work2 >= 3 && renderTopDownPerson(0.7, -60, 40)}
+                                </AnimatePresence>
                               </div>
                             )}
                           </div>
