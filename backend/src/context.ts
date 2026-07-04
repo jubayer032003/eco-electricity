@@ -8,6 +8,7 @@ import { AlertEngine } from './alerts/alert.engine';
 import { AIInsightsAnalyzer } from './services/aiInsights/analyzer';
 import { AIAssistantService } from './services/aiAssistant/assistant';
 import { AutomationEngine } from './services/automation/automationEngine';
+import { MqttService } from './services/mqtt/mqtt.service';
 import {
   HistoryService,
   AggregationService,
@@ -42,6 +43,7 @@ const peakAnalyzer = new PeakAnalyzer();
 
 const aiAssistantService = new AIAssistantService();
 const automationEngine = new AutomationEngine();
+const mqttService = new MqttService(simulationService, automationEngine);
 
 export const context = {
   deviceRepo,
@@ -59,5 +61,6 @@ export const context = {
   trendAnalyzer,
   peakAnalyzer,
   aiAssistantService,
-  automationEngine
+  automationEngine,
+  mqttService
 };

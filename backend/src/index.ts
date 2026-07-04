@@ -26,6 +26,9 @@ context.socketService.initialize(server);
 // Start Discord Bot
 context.discordService.start();
 
+// Start MQTT Hardware Integration Service
+context.mqttService.start();
+
 app.use(cors());
 app.use(express.json());
 
