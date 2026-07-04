@@ -68,10 +68,11 @@ export const DevicePanel: React.FC = () => {
           return (
             <div
               key={device.id}
-              className={`p-4 rounded-2xl border transition-all duration-300 ${
+              onClick={() => toggleDevice(device.id, device.status)}
+              className={`p-4 rounded-2xl border transition-all duration-300 cursor-pointer ${
                 isOn
-                  ? 'bg-slate-900/70 border-indigo-500/20 shadow-md shadow-indigo-500/5'
-                  : 'bg-slate-900/30 border-slate-800/60'
+                  ? 'bg-slate-900/70 border-indigo-500/30 shadow-md shadow-indigo-500/10 hover:border-indigo-500/60'
+                  : 'bg-slate-900/30 border-slate-800/60 hover:border-slate-700'
               }`}
             >
               <div className="flex justify-between items-start gap-2 mb-3">
@@ -102,7 +103,10 @@ export const DevicePanel: React.FC = () => {
                 </div>
 
                 <button
-                  onClick={() => toggleDevice(device.id, device.status)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleDevice(device.id, device.status);
+                  }}
                   className={`p-2 rounded-lg border transition-all duration-300 ${
                     isOn
                       ? 'bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border-indigo-500/30 hover:border-indigo-500/50'
