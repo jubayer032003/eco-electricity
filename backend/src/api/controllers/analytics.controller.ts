@@ -21,21 +21,19 @@ export class AnalyticsController {
         ? uptime.reduce((max, d) => (d.uptimePercent > max.uptimePercent ? d : max), uptime[0]).deviceName
         : 'None';
 
-      // Calculate energy consumed specifically for the requested time range
+      // Calculate exact per-second energy consumed for the requested time range
       let rangeKwh = 0;
-      if (range === 'live') {
-        // Energy consumed in last 25 seconds
-        const avgWatts = aggs.avgPower || powerState.totalPowerDraw;
-        rangeKwh = (avgWatts / 1000) * (25 / 3600);
-      } else if (range === 'hour') {
-        // Energy consumed in last hour
-        const avgWatts = aggs.avgPower || powerState.totalPowerDraw;
-        rangeKwh = (avgWatts / 1000) * 1.0;
-      } else if (range === 'week') {
-        rangeKwh = powerState.estimatedKwhToday * 7;
+      if (history.length > 0) {
+        // Exact sum of per-second kWh across all historical samples
+        rangeKwh = history.reduce((sum, entry) => sum + (entry.kwhPerSecond || (entry.totalPower / 1000) / 3600), 0);
+        if (range === 'today' || range === 'week') {
+          rangeKwh = Math.max(rangeKwh, powerState.estimatedKwhToday);
+        }
+        if (range === 'week') {
+          rangeKwh *= 7;
+        }
       } else {
-        // Today
-        rangeKwh = powerState.estimatedKwhToday;
+        rangeKwh = range === 'week' ? powerState.estimatedKwhToday * 7 : powerState.estimatedKwhToday;
       }
 
       const rangeCost = rangeKwh * 12.39;

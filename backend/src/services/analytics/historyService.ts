@@ -5,11 +5,12 @@ export interface HistoryEntry {
   deviceStates: Record<string, 'ON' | 'OFF'>; // device -> status
   activeAlertsCount: number;
   efficiencyScore: number;
+  kwhPerSecond: number;   // kWh consumed in this specific 1-second tick
 }
 
 export class HistoryService {
   private history: HistoryEntry[] = [];
-  private maxHistorySize = 1000;
+  private maxHistorySize = 7200; // Store up to 2 hours of per-second data points
 
   addEntry(entry: HistoryEntry): void {
     this.history.push(entry);

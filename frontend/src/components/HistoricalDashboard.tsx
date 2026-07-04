@@ -36,6 +36,7 @@ interface HistoryEntry {
   deviceStates: Record<string, 'ON' | 'OFF'>;
   activeAlertsCount: number;
   efficiencyScore: number;
+  kwhPerSecond?: number;
 }
 
 interface RoomData {
@@ -167,9 +168,9 @@ export const HistoricalDashboard: React.FC = () => {
         <div>
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
             <Clock size={18} className="text-sky-400" />
-            Historical Power Analytics
+            Historical Power Analytics (Per-Second Precision)
           </h2>
-          <p className="text-xs text-slate-400">Aggregate building diagnostics and device performance auditing</p>
+          <p className="text-xs text-slate-400">Real-time per-second energy calculations, power demand trends, and device audits</p>
         </div>
 
         {/* Time Filter buttons */}
@@ -184,7 +185,7 @@ export const HistoricalDashboard: React.FC = () => {
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              {r === 'live' ? 'Live (25s)' : r === 'hour' ? 'Last Hour' : r === 'today' ? 'Today' : 'Last 7 Days'}
+              {r === 'live' ? 'Live (25s)' : r === 'hour' ? 'Last Hour (1s/tick)' : r === 'today' ? 'Today (1s/tick)' : 'Last 7 Days'}
             </button>
           ))}
         </div>
@@ -292,7 +293,7 @@ export const HistoricalDashboard: React.FC = () => {
                 <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                   <Zap size={14} className="text-sky-400" /> Power Demand Trend
                 </span>
-                <span className="text-[10px] text-slate-500">Interval: {history.length} samples logged</span>
+                <span className="text-[10px] text-slate-400 font-medium">Sampling Rate: 1s/tick • {history.length} samples logged</span>
               </div>
 
               {history.length >= 2 ? (
@@ -503,6 +504,50 @@ export const HistoricalDashboard: React.FC = () => {
               </table>
             </div>
 
+          </div>
+
+          {/* Per-Second Telemetry Audit Feed */}
+          <div className="p-5 rounded-2xl bg-slate-900/30 border border-slate-850 mt-6">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Clock size={14} className="text-emerald-400" /> Per-Second Telemetry Audit Log ({history.length} ticks)
+              </span>
+              <span className="text-[10px] text-slate-400">Calculation: Exact (Watts ÷ 1000) ÷ 3600 per second</span>
+            </div>
+
+            <div className="overflow-x-auto max-h-60 overflow-y-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead className="sticky top-0 bg-slate-950 shadow-sm z-10">
+                  <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase tracking-wider">
+                    <th className="py-2 px-3">Timestamp (1s Ticks)</th>
+                    <th className="py-2 px-3 text-right">Power Draw (W)</th>
+                    <th className="py-2 px-3 text-right">Per-Second Energy (kWh/s)</th>
+                    <th className="py-2 px-3 text-center">Drawing Room</th>
+                    <th className="py-2 px-3 text-center">Work Room 1</th>
+                    <th className="py-2 px-3 text-center">Work Room 2</th>
+                    <th className="py-2 px-3 text-right">Efficiency Score</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/40 text-slate-300 font-mono">
+                  {history.slice(-30).reverse().map((entry, idx) => {
+                    const kwhSec = entry.kwhPerSecond || (entry.totalPower / 1000) / 3600;
+                    return (
+                      <tr key={idx} className="hover:bg-slate-800/20 transition-colors">
+                        <td className="py-2 px-3 text-slate-400">
+                          {new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                        </td>
+                        <td className="py-2 px-3 text-right font-bold text-sky-400">{entry.totalPower} W</td>
+                        <td className="py-2 px-3 text-right text-emerald-400">{kwhSec.toFixed(7)}</td>
+                        <td className="py-2 px-3 text-center text-slate-300">{entry.roomPowers?.drawing || 0} W</td>
+                        <td className="py-2 px-3 text-center text-slate-300">{entry.roomPowers?.work1 || 0} W</td>
+                        <td className="py-2 px-3 text-center text-slate-300">{entry.roomPowers?.work2 || 0} W</td>
+                        <td className="py-2 px-3 text-right font-sans font-bold text-indigo-400">{entry.efficiencyScore}/100</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
 
         </div>

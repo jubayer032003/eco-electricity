@@ -68,6 +68,7 @@ context.simulationService.on('tick', async () => {
     }
 
     const activeAlertsCount = alerts.filter((a) => !a.resolved).length;
+    const kwhPerSecond = (powerState.totalPowerDraw / 1000) / 3600;
 
     context.historyService.addEntry({
       timestamp: new Date().toISOString(),
@@ -75,7 +76,8 @@ context.simulationService.on('tick', async () => {
       roomPowers,
       deviceStates,
       activeAlertsCount,
-      efficiencyScore: insights.efficiencyScore
+      efficiencyScore: insights.efficiencyScore,
+      kwhPerSecond: Number(kwhPerSecond.toFixed(7))
     });
   } catch (err) {
     console.error('[AI System] Error calculating/broadcasting insights:', err);
