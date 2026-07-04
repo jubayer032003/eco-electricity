@@ -29,6 +29,13 @@ export class AutomationEngine {
   private tickCounter = 0;
   private totalKwhSavedValue = 0;
 
+  private emptySince: Record<string, number | null> = {
+    drawing: null,
+    work1: null,
+    work2: 0 // initially empty
+  };
+  private emptyTimerId: Record<string, NodeJS.Timeout | null> = {};
+
   getMode(): AutomationMode {
     return this.modeManager.getMode();
   }
@@ -64,12 +71,35 @@ export class AutomationEngine {
 
   setOccupancy(room: string, occupied: boolean): boolean {
     if (this.roomOccupancy[room] !== undefined) {
+      const wasOccupied = this.roomOccupancy[room];
       this.roomOccupancy[room] = occupied;
+
+      if (occupied) {
+        this.emptySince[room] = null;
+        if (this.emptyTimerId[room]) {
+          clearTimeout(this.emptyTimerId[room]!);
+          this.emptyTimerId[room] = null;
+        }
+      } else if (!occupied) {
+        if (wasOccupied || this.emptySince[room] === null) {
+          this.emptySince[room] = Date.now();
+        }
+        if (this.emptyTimerId[room]) {
+          clearTimeout(this.emptyTimerId[room]!);
+        }
+        // Schedule auto-off after 4.5 seconds (4-5s delay)
+        this.emptyTimerId[room] = setTimeout(() => {
+          this.evaluateTick().catch((err) => console.error('[Automation Engine] Delayed empty evaluateTick failed:', err));
+        }, 4500);
+      }
+
       // Broadcast occupancy update to clients immediately
       context.socketService.broadcast('occupancyUpdated', this.roomOccupancy);
       
-      // Force immediate rule evaluation on manual override to ensure instant device shutdown
-      this.evaluateTick().catch((err) => console.error('[Automation Engine] Manual occupancy evaluateTick failed:', err));
+      // Force immediate rule evaluation if occupied so devices turn on instantly
+      if (occupied) {
+        this.evaluateTick().catch((err) => console.error('[Automation Engine] Manual occupancy evaluateTick failed:', err));
+      }
       
       return true;
     }
@@ -177,8 +207,12 @@ export class AutomationEngine {
             const condIsEmpty = rule.condition.value === 'empty';
 
             if (condIsEmpty && !isOccupied) {
-              // Automatically shut off devices in empty rooms
-              await this.fireRuleAction(rule, devices, activeImpacts);
+              const emptyTime = this.emptySince[room];
+              const now = Date.now();
+              // Automatically shut off devices only after room has been empty for at least 4.5 seconds (4-5s delay)
+              if (emptyTime !== null && (now - emptyTime >= 4500)) {
+                await this.fireRuleAction(rule, devices, activeImpacts);
+              }
             } else if (!condIsEmpty && isOccupied && !prevOccupied) {
               // Trigger ON action when room transitions from empty to occupied
               await this.fireRuleAction(rule, devices, activeImpacts);
