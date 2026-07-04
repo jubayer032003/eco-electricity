@@ -1023,14 +1023,14 @@ export const OfficeMap: React.FC = () => {
 
                       {/* Animated Door (right wall) */}
                       <motion.div
-                        animate={{ scaleX: doorOpenStates.drawing ? 0.15 : 1 }}
+                        animate={{ scaleY: doorOpenStates.drawing ? 0.15 : 1 }}
                         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                         className="absolute right-0 bottom-8 w-1.5 h-14 bg-gradient-to-b from-amber-700 to-amber-900 origin-top shadow-lg z-30 rounded-sm"
                         style={{ transform: 'translateZ(8px)' }}
                       />
 
                       {/* Door frame indicator */}
-                      <div className="absolute right-[-1px] bottom-8 w-0.5 h-14 bg-amber-600/30 z-20" />
+                      <div className="absolute right-[-1px] bottom-8 w-0.5 h-14 bg-slate-700/50 z-20" />
 
                       {/* Dome Occupancy Sensor */}
                       <div className="absolute right-3 bottom-[5.5rem] z-30" style={{ transform: 'translateZ(12px)' }}>
@@ -1118,12 +1118,12 @@ export const OfficeMap: React.FC = () => {
 
                       {/* Animated Door (bottom wall) */}
                       <motion.div
-                        animate={{ scaleY: doorOpenStates.work1 ? 0.15 : 1 }}
+                        animate={{ scaleX: doorOpenStates.work1 ? 0.15 : 1 }}
                         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                         className="absolute bottom-0 left-6 w-14 h-1.5 bg-gradient-to-r from-amber-700 to-amber-900 origin-left shadow-lg z-30 rounded-sm"
                         style={{ transform: 'translateZ(8px)' }}
                       />
-                      <div className="absolute bottom-[-1px] left-6 w-14 h-0.5 bg-amber-600/30 z-20" />
+                      <div className="absolute bottom-[-1px] left-6 w-14 h-0.5 bg-slate-700/50 z-20" />
 
                       {/* Dome Occupancy Sensor */}
                       <div className="absolute left-[5.2rem] bottom-3 z-30" style={{ transform: 'translateZ(12px)' }}>
@@ -1219,12 +1219,12 @@ export const OfficeMap: React.FC = () => {
 
                       {/* Animated Door (bottom wall) */}
                       <motion.div
-                        animate={{ scaleY: doorOpenStates.work2 ? 0.15 : 1 }}
+                        animate={{ scaleX: doorOpenStates.work2 ? 0.15 : 1 }}
                         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                         className="absolute bottom-0 left-6 w-14 h-1.5 bg-gradient-to-r from-amber-700 to-amber-900 origin-left shadow-lg z-30 rounded-sm"
                         style={{ transform: 'translateZ(8px)' }}
                       />
-                      <div className="absolute bottom-[-1px] left-6 w-14 h-0.5 bg-amber-600/30 z-20" />
+                      <div className="absolute bottom-[-1px] left-6 w-14 h-0.5 bg-slate-700/50 z-20" />
 
                       {/* Dome Occupancy Sensor */}
                       <div className="absolute left-[5.2rem] bottom-3 z-30" style={{ transform: 'translateZ(12px)' }}>
