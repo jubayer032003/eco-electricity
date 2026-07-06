@@ -75,7 +75,7 @@
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/jubayerat05/eco-electricity.git
+git clone https://github.com/jubayer032003/eco-electricity.git
 cd eco-electricity
 ```
 
@@ -126,8 +126,8 @@ npm run dev
 ## 👨‍💻 Author & Credits
 
 Created with ❤️ by **Jubayer Rahman Chowdhury**  
-- **GitHub**: [@jubayerat05](https://github.com/jubayerat05)  
-- **Project Repository**: [eco-electricity](https://github.com/jubayerat05/eco-electricity)  
+- **GitHub**: [@jubayer032003](https://github.com/jubayer032003)  
+- **Project Repository**: [eco-electricity](https://github.com/jubayer032003/eco-electricity)  
 - **Live Demo**: [https://eco-electricity-ten.vercel.app/](https://eco-electricity-ten.vercel.app/)
 
 ---
